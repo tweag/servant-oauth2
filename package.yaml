@@ -1,0 +1,36 @@
+name:                servant-oath2-combinator
+version:             0.1.0.0
+#synopsis:
+#description:
+homepage:            https://github.com/tweag/servant-oath2-combinator#readme
+license:             BSD3
+author:              Tweag
+maintainer:          noon.vandersilk@tweag.io
+copyright:           2022 Tweag
+category:            Web
+extra-source-files:
+- README.md
+
+ghc-options:
+  -W
+  -Wall
+
+dependencies:
+  - base >= 4.7 && < 5
+  - binary
+  - bytestring
+  - clientsession
+  - cookie
+  - servant
+  - servant-blaze
+  - servant-server
+  - shakespeare
+  - text
+  - tomland
+  - wai
+  - warp
+
+executables:
+  servant-oath2-combinator:
+    source-dirs:      src
+    main:             Main.hs
