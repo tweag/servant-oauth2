@@ -15,6 +15,19 @@ ghc-options:
   -W
   -Wall
 
+default-extensions:
+  - DataKinds
+  - DeriveGeneric
+  - DerivingStrategies
+  - FlexibleContexts
+  - ImportQualifiedPost
+  - NoStarIsType
+  - OverloadedStrings
+  - ScopedTypeVariables
+  - TypeApplications
+  - TypeOperators
+
+
 dependencies:
   - base >= 4.7 && < 5
   - binary

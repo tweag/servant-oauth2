@@ -24,6 +24,17 @@ library
       Paths_servant_oauth2_combinator
   hs-source-dirs:
       src
+  default-extensions:
+      DataKinds
+      DeriveGeneric
+      DerivingStrategies
+      FlexibleContexts
+      ImportQualifiedPost
+      NoStarIsType
+      OverloadedStrings
+      ScopedTypeVariables
+      TypeApplications
+      TypeOperators
   ghc-options: -W -Wall
   build-depends:
       base >=4.7 && <5
@@ -47,6 +58,17 @@ executable example
       Paths_servant_oauth2_combinator
   hs-source-dirs:
       example
+  default-extensions:
+      DataKinds
+      DeriveGeneric
+      DerivingStrategies
+      FlexibleContexts
+      ImportQualifiedPost
+      NoStarIsType
+      OverloadedStrings
+      ScopedTypeVariables
+      TypeApplications
+      TypeOperators
   ghc-options: -W -Wall
   build-depends:
       base >=4.7 && <5
