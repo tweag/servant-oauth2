@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           servant-oath2-combinator
+name:           servant-oauth2-combinator
 version:        0.1.0.0
 category:       Web
-homepage:       https://github.com/tweag/servant-oath2-combinator#readme
+homepage:       https://github.com/tweag/servant-oauth2-combinator#readme
 author:         Tweag
 maintainer:     noon.vandersilk@tweag.io
 copyright:      2022 Tweag
@@ -17,10 +17,11 @@ build-type:     Simple
 extra-source-files:
     README.md
 
-executable servant-oath2-combinator
-  main-is: Main.hs
+library
+  exposed-modules:
+      Servant.OAuth2
   other-modules:
-      Paths_servant_oath2_combinator
+      Paths_servant_oauth2_combinator
   hs-source-dirs:
       src
   ghc-options: -W -Wall
@@ -32,6 +33,30 @@ executable servant-oath2-combinator
     , cookie
     , servant
     , servant-blaze
+    , servant-server
+    , shakespeare
+    , text
+    , tomland
+    , wai
+    , warp
+  default-language: Haskell2010
+
+executable example
+  main-is: Main.hs
+  other-modules:
+      Paths_servant_oauth2_combinator
+  hs-source-dirs:
+      example
+  ghc-options: -W -Wall
+  build-depends:
+      base >=4.7 && <5
+    , binary
+    , bytestring
+    , clientsession
+    , cookie
+    , servant
+    , servant-blaze
+    , servant-oauth2-combinator
     , servant-server
     , shakespeare
     , text

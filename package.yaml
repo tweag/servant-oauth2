@@ -1,8 +1,8 @@
-name:                servant-oath2-combinator
+name:                servant-oauth2-combinator
 version:             0.1.0.0
 #synopsis:
 #description:
-homepage:            https://github.com/tweag/servant-oath2-combinator#readme
+homepage:            https://github.com/tweag/servant-oauth2-combinator#readme
 license:             BSD3
 author:              Tweag
 maintainer:          noon.vandersilk@tweag.io
@@ -31,6 +31,12 @@ dependencies:
   - warp
 
 executables:
-  servant-oath2-combinator:
-    source-dirs:      src
+  example:
+    source-dirs:      example
     main:             Main.hs
+    dependencies:
+      - servant-oauth2-combinator
+
+
+library:
+  source-dirs: src
