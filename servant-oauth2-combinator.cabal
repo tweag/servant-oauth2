@@ -30,8 +30,11 @@ library
       DerivingStrategies
       FlexibleContexts
       ImportQualifiedPost
+      KindSignatures
       NoStarIsType
       OverloadedStrings
+      PackageImports
+      PolyKinds
       ScopedTypeVariables
       TypeApplications
       TypeOperators
@@ -64,8 +67,11 @@ executable example
       DerivingStrategies
       FlexibleContexts
       ImportQualifiedPost
+      KindSignatures
       NoStarIsType
       OverloadedStrings
+      PackageImports
+      PolyKinds
       ScopedTypeVariables
       TypeApplications
       TypeOperators

@@ -3,32 +3,50 @@
 
 module Main where
 
-import GHC.Generics (Generic)
-import Network.Wai.Handler.Warp (run)
-import Servant (Context (EmptyContext), Get, Handler, type (:>))
-import Servant.API.Generic ((:-))
-import Servant.HTML.Blaze (HTML)
-import Servant.Server.Generic (AsServerT, genericServeTWithContext)
-import Text.Hamlet (Html, shamlet)
+import "base" GHC.Generics (Generic)
+import "warp" Network.Wai.Handler.Warp (run)
+import "servant-server" Servant (Context (EmptyContext), Get, Handler, NamedRoutes, type (:>))
+import "servant" Servant.API.Generic ((:-))
+import "servant-blaze" Servant.HTML.Blaze (HTML)
+import "servant-server" Servant.Server.Generic (AsServerT, genericServeTWithContext)
+import "shakespeare" Text.Hamlet (Html, shamlet)
+
+import Servant.OAuth2
 
 type PageM = Handler
 
-data Api mode = Api
+data Routes mode = Routes
   { home :: mode :- Get '[HTML] Html
-  , about :: mode :- "about" :> Get '[HTML] Html
+  , admin :: mode :- "admin" :> NamedRoutes AdminRoutes
   }
   deriving stock (Generic)
 
-server :: Api (AsServerT PageM)
+data AdminRoutes mode = AdminRoutes
+  { adminHome :: mode :- Get '[HTML] Html
+  }
+  deriving stock (Generic)
+
+server :: Routes (AsServerT PageM)
 server =
-  Api
+  Routes
     { home = pure $ [shamlet| <p> Home |]
-    , about = pure $ [shamlet| <p> About |]
+    , admin = adminServer
+    }
+
+adminServer :: AdminRoutes (AsServerT PageM)
+adminServer =
+  AdminRoutes
+    { adminHome =
+        pure $
+          [shamlet|
+        <p> Admin
+        <i> Top secrets secrets ...
+      |]
     }
 
 main :: IO ()
 main = do
-  run 8083 $
+  run 8080 $
     genericServeTWithContext nat server context
   where
     context = EmptyContext

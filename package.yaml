@@ -21,8 +21,11 @@ default-extensions:
   - DerivingStrategies
   - FlexibleContexts
   - ImportQualifiedPost
+  - KindSignatures
   - NoStarIsType
   - OverloadedStrings
+  - PackageImports
+  - PolyKinds
   - ScopedTypeVariables
   - TypeApplications
   - TypeOperators
