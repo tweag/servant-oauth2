@@ -45,6 +45,7 @@ library
     , bytestring
     , clientsession
     , cookie
+    , http-types
     , servant
     , servant-blaze
     , servant-server
@@ -52,6 +53,7 @@ library
     , text
     , tomland
     , wai
+    , wai-middleware-auth
     , warp
   default-language: Haskell2010
 
@@ -82,6 +84,7 @@ executable example
     , bytestring
     , clientsession
     , cookie
+    , http-types
     , servant
     , servant-blaze
     , servant-oauth2-combinator
@@ -90,5 +93,6 @@ executable example
     , text
     , tomland
     , wai
+    , wai-middleware-auth
     , warp
   default-language: Haskell2010

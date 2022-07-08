@@ -36,6 +36,7 @@ dependencies:
   - binary
   - bytestring
   - clientsession
+  - http-types
   - cookie
   - servant
   - servant-blaze
@@ -44,6 +45,7 @@ dependencies:
   - text
   - tomland
   - wai
+  - wai-middleware-auth
   - warp
 
 executables:
