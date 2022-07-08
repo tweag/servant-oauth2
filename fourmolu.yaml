@@ -5,5 +5,5 @@ indent-wheres: true
 record-brace-space: false
 respectful: true
 haddock-style: multi-line
-newlines-between-decls: 1
+newlines-between-decls: 2
 fixities: []
