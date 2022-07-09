@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           servant-oauth2-combinator
+name:           servant-oauth2
 version:        0.1.0.0
 category:       Web
 homepage:       https://github.com/tweag/servant-oauth2-combinator#readme
@@ -21,7 +21,7 @@ library
   exposed-modules:
       Servant.OAuth2
   other-modules:
-      Paths_servant_oauth2_combinator
+      Paths_servant_oauth2
   hs-source-dirs:
       src
   default-extensions:
@@ -58,7 +58,7 @@ library
 executable example
   main-is: Main.hs
   other-modules:
-      Paths_servant_oauth2_combinator
+      Paths_servant_oauth2
   hs-source-dirs:
       example
   default-extensions:
@@ -84,7 +84,7 @@ executable example
     , cookie
     , servant
     , servant-blaze
-    , servant-oauth2-combinator
+    , servant-oauth2
     , servant-server
     , shakespeare
     , text
