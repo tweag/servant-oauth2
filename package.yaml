@@ -33,10 +33,12 @@ default-extensions:
 
 dependencies:
   - base >= 4.7 && < 5
+  - base64-bytestring
   - binary
   - bytestring
   - clientsession
   - cookie
+  - http-types
   - servant
   - servant-blaze
   - servant-server
@@ -44,6 +46,7 @@ dependencies:
   - text
   - tomland
   - wai
+  - wai-middleware-auth
   - warp
 
 executables:
