@@ -1,4 +1,4 @@
-name:                servant-oauth2-combinator
+name:                servant-oauth2
 version:             0.1.0.0
 #synopsis:
 #description:
@@ -51,7 +51,7 @@ executables:
     source-dirs:      example
     main:             Main.hs
     dependencies:
-      - servant-oauth2-combinator
+      - servant-oauth2
 
 
 library:
