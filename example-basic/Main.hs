@@ -24,6 +24,10 @@ import "servant-server" Servant (
   Get,
   Handler,
   NamedRoutes,
+  StdMethod (GET),
+  UVerb,
+  Union,
+  WithStatus (WithStatus),
   type (:>),
  )
 import "servant" Servant.API.Generic ((:-))
@@ -43,12 +47,12 @@ import "tomland" Toml (decodeFileExact)
 -- We need to define an instance that corresponds to the result we want to
 -- return. We're going with the 'basic' option; so we'll just take the Text
 -- value of the ident that comes back.
-type OAuth2Result = Text
+type OAuth2Result = '[WithStatus 200 Text]
 
 
 -- This is the instance that connects up the route with the auth handler by
 -- way of the return type.
-type instance AuthServerData (AuthProtect "oauth2-github") = OAuth2Result
+type instance AuthServerData (AuthProtect "oauth2-github") = Union OAuth2Result
 
 
 data Routes mode = Routes
@@ -85,7 +89,7 @@ server OAuthConfig {_callbackUrl} settings =
         liftIO $ print githubLoginUrl
         pure $
           [shamlet|
-            <h3> Home
+            <h3> Home - Basic Example
             <p>
                 <a href="#{githubLoginUrl}"> Login
           |]

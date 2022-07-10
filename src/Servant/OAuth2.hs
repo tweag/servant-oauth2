@@ -9,6 +9,7 @@ import "binary" Data.Binary qualified as Binary
 import "bytestring" Data.ByteString (ByteString)
 import "base64-bytestring" Data.ByteString.Base64.URL qualified as Base64
 import "bytestring" Data.ByteString.Lazy qualified as BSL
+import "base" Data.Kind (Type)
 import "text" Data.Text (Text, intercalate)
 import "text" Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import "base" GHC.Generics (Generic)
@@ -23,15 +24,19 @@ import "wai-middleware-auth" Network.Wai.Middleware.Auth qualified as Wai
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 qualified as Wai
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.Provider qualified as Wai
 import "servant-server" Servant (
-  Get,
   Handler,
   Header,
   Headers,
   NoContent (NoContent),
+  StdMethod (GET),
+  UVerb,
+  Union,
+  WithStatus (WithStatus),
   addHeader,
   err401,
   err403,
   err501,
+  respond,
   throwError,
   type (:>),
  )
@@ -63,16 +68,7 @@ type Ident = ByteString
 
 
 -- | Helpful aliases.
-type Redirect =
-  Headers '[Header "Location" Text] NoContent
-
-
-redirect :: Text -> Redirect
-redirect location = addHeader location NoContent
-
-
-type RedirectWithCookie =
-  Headers '[Header "Location" Text, Header "Set-Cookie" SetCookie] NoContent
+type RedirectWithCookie = Headers '[Header "Location" Text, Header "Set-Cookie" SetCookie] NoContent
 
 
 redirectWithCookie ::
@@ -83,25 +79,32 @@ redirectWithCookie destination cookie =
   addHeader destination (addHeader cookie NoContent)
 
 
-data OAuth2Routes a mode = AuthRoutes
-  { complete :: mode :- "complete" :> Get '[HTML] a
+data OAuth2Routes (rs :: [Type]) mode = AuthRoutes
+  { complete :: mode :- "complete" :> UVerb 'GET '[HTML] rs
   }
   deriving stock (Generic)
 
 
-authServer :: forall a. a -> OAuth2Routes a (AsServerT Handler)
-authServer a =
+authServer ::
+  forall (rs :: [Type]).
+  Union rs ->
+  OAuth2Routes rs (AsServerT Handler)
+authServer h =
   AuthRoutes
-    { complete = pure a
+    { complete = pure h
     }
 
 
-oauth2AuthHandler :: forall p a. (Wai.AuthProvider p) => OAuth2Settings p a -> AuthHandler Request a
+oauth2AuthHandler ::
+  forall p rs.
+  (Wai.AuthProvider p) =>
+  OAuth2Settings p rs ->
+  AuthHandler Request (Union rs)
 oauth2AuthHandler settings = mkAuthHandler f
  where
   onSuccess ident = pure $ Wai.responseLBS status200 [("", ident)] ""
   onFailure status reason = pure $ Wai.responseLBS status [("", reason)] ""
-  f :: Request -> Handler a
+  f :: Request -> Handler (Union rs)
   f req = do
     resp <- runOAuth2 req (provider settings) onSuccess onFailure
     let thing = snd . head $ Wai.responseHeaders resp
@@ -161,16 +164,16 @@ runOAuth2 request p onSuccess onFailure = do
   liftIO $ Wai.handleLogin provider request suffix providerUrl onSuccess onFailure
 
 
-data OAuth2Settings p a = OAuth2Settings
-  { success :: Ident -> Handler a
+data OAuth2Settings p (rs :: [Type]) = OAuth2Settings
+  { success :: Ident -> Handler (Union rs)
   , provider :: p
   }
 
 
-defaultOAuth2Settings :: p -> OAuth2Settings p Text
+defaultOAuth2Settings :: p -> OAuth2Settings p '[WithStatus 200 Text]
 defaultOAuth2Settings p =
   OAuth2Settings
-    { success = pure . decodeUtf8
+    { success = respond . WithStatus @200 . decodeUtf8
     , provider = p
     }
 
@@ -182,13 +185,13 @@ simpleCookieOAuth2Settings ::
   p ->
   (Ident -> Handler s) ->
   Key ->
-  OAuth2Settings p RedirectWithCookie
+  OAuth2Settings p '[WithStatus 303 RedirectWithCookie]
 simpleCookieOAuth2Settings p toSessionId key =
   (defaultOAuth2Settings p)
     { success = \ident -> do
         sid <- toSessionId ident
         cookie <- liftIO $ buildSessionCookie key sid
-        pure $ redirectWithCookie "/" cookie
+        respond $ WithStatus @303 (redirectWithCookie "/" cookie)
     }
 
 

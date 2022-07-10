@@ -103,3 +103,47 @@ executable example-basic
     , wai-middleware-auth
     , warp
   default-language: Haskell2010
+
+executable example-cookies
+  main-is: Main.hs
+  other-modules:
+      Config
+      Paths_servant_oauth2
+  hs-source-dirs:
+      example-cookies
+  default-extensions:
+      DataKinds
+      DeriveGeneric
+      DerivingStrategies
+      FlexibleContexts
+      ImportQualifiedPost
+      KindSignatures
+      NoStarIsType
+      OverloadedStrings
+      PackageImports
+      PolyKinds
+      ScopedTypeVariables
+      TypeApplications
+      TypeOperators
+  ghc-options: -W -Wall
+  build-depends:
+      base >=4.7 && <5
+    , base64-bytestring
+    , binary
+    , bytestring
+    , clientsession
+    , cookie
+    , hoauth2
+    , http-types
+    , servant
+    , servant-blaze
+    , servant-oauth2
+    , servant-server
+    , shakespeare
+    , text
+    , tomland
+    , uri-bytestring
+    , wai
+    , wai-middleware-auth
+    , warp
+  default-language: Haskell2010

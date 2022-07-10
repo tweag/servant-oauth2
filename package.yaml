@@ -57,5 +57,11 @@ executables:
     dependencies:
       - servant-oauth2
 
+  example-cookies:
+    source-dirs:      example-cookies
+    main:             Main.hs
+    dependencies:
+      - servant-oauth2
+
 library:
   source-dirs: src
