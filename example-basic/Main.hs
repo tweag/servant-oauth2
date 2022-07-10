@@ -1,0 +1,110 @@
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
+
+module Main where
+
+import Config
+import "base" Control.Monad.IO.Class (liftIO)
+import "text" Data.Text (Text)
+import "base" GHC.Generics (Generic)
+import "warp" Network.Wai.Handler.Warp (run)
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 (
+  OAuth2 (..),
+ )
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github (
+  Github (..),
+  mkGithubProvider,
+ )
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.Provider qualified as Wai
+import "servant-server" Servant (
+  AuthProtect,
+  Context (EmptyContext, (:.)),
+  Get,
+  Handler,
+  NamedRoutes,
+  type (:>),
+ )
+import "servant" Servant.API.Generic ((:-))
+import "servant-blaze" Servant.HTML.Blaze (HTML)
+import Servant.OAuth2
+import "servant-server" Servant.Server.Experimental.Auth (
+  AuthServerData,
+ )
+import "servant-server" Servant.Server.Generic (
+  AsServerT,
+  genericServeTWithContext,
+ )
+import "shakespeare" Text.Hamlet (Html, shamlet)
+import "tomland" Toml (decodeFileExact)
+
+
+-- We need to define an instance that corresponds to the result we want to
+-- return. We're going with the 'basic' option; so we'll just take the Text
+-- value of the ident that comes back.
+type OAuth2Result = Text
+
+
+-- This is the instance that connects up the route with the auth handler by
+-- way of the return type.
+type instance AuthServerData (AuthProtect "oauth2-github") = OAuth2Result
+
+
+data Routes mode = Routes
+  { home :: mode :- Get '[HTML] Html
+  , auth ::
+      mode
+        :- AuthProtect "oauth2-github"
+          :> "auth"
+          :> "github"
+          :> NamedRoutes (OAuth2Routes OAuth2Result)
+  }
+  deriving stock (Generic)
+
+
+-- The final connecttion: the settings we pass in need to specify the return
+-- result that should come back.
+mkSettings :: OAuthConfig -> OAuth2Settings Github OAuth2Result
+mkSettings c =
+  defaultOAuth2Settings $
+    mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
+ where
+  emailAllowList = [".*"]
+
+
+server ::
+  OAuthConfig ->
+  OAuth2Settings Github OAuth2Result ->
+  Routes (AsServerT Handler)
+server OAuthConfig {_callbackUrl} settings =
+  Routes
+    { home = do
+        let (Github {githubOAuth2}) = provider settings
+            githubLoginUrl = getRedirectUrl _callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+        liftIO $ print githubLoginUrl
+        pure $
+          [shamlet|
+            <h3> Home
+            <p>
+                <a href="#{githubLoginUrl}"> Login
+          |]
+    , auth = authServer
+    }
+
+
+main :: IO ()
+main = do
+  eitherConfig <- decodeFileExact configCodec ("./example-basic/config.toml")
+  config <-
+    either
+      (\errors -> fail $ "unable to parse configuration: " <> show errors)
+      pure
+      eitherConfig
+
+  let ghSettings = mkSettings (_oauth config)
+      context = oauth2AuthHandler ghSettings :. EmptyContext
+      nat = id
+
+  run 8080 $
+    genericServeTWithContext nat (server (_oauth config) ghSettings) context
