@@ -1,5 +1,19 @@
 # servant-oauth2-combinator
 
+#### Hacking
+
+Simplest example:
+
+```
+./hack example-basic
+```
+
+Cookie example:
+```
+./hack example-cookies
+```
+
+
 #### Todo
 
 - [ ] Show an example of multiple auths (distinguish by type)

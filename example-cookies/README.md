@@ -17,5 +17,5 @@ Create a file in this folder called `config.toml`:
 From the home directory:
 
 ```
-stack run -- example-basic
+stack run -- example-cookies
 ```

@@ -32,10 +32,8 @@ library
       FlexibleContexts
       ImportQualifiedPost
       KindSignatures
-      NoStarIsType
       OverloadedStrings
       PackageImports
-      PolyKinds
       ScopedTypeVariables
       TypeApplications
       TypeOperators
@@ -75,10 +73,8 @@ executable example-basic
       FlexibleContexts
       ImportQualifiedPost
       KindSignatures
-      NoStarIsType
       OverloadedStrings
       PackageImports
-      PolyKinds
       ScopedTypeVariables
       TypeApplications
       TypeOperators
@@ -119,10 +115,8 @@ executable example-cookies
       FlexibleContexts
       ImportQualifiedPost
       KindSignatures
-      NoStarIsType
       OverloadedStrings
       PackageImports
-      PolyKinds
       ScopedTypeVariables
       TypeApplications
       TypeOperators

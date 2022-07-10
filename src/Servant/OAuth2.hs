@@ -12,7 +12,6 @@ import "text" Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import "base" GHC.Generics (Generic)
 import "http-types" Network.HTTP.Types (
   Status (Status),
-  hCookie,
   status200,
  )
 import "hoauth2" Network.OAuth.OAuth2 qualified as OA2
@@ -23,14 +22,10 @@ import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 qualified as Wai
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.Provider qualified as Wai
 import "servant-server" Servant (
   Handler,
-  Header,
-  Headers,
-  NoContent (NoContent),
   StdMethod (GET),
   UVerb,
   Union,
   WithStatus (WithStatus),
-  addHeader,
   err401,
   err403,
   err501,
