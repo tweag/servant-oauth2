@@ -6,7 +6,6 @@
 module Main where
 
 import Config
-import "base" Control.Monad.IO.Class (liftIO)
 import "text" Data.Text (Text)
 import "base" GHC.Generics (Generic)
 import "warp" Network.Wai.Handler.Warp (run)
@@ -17,17 +16,14 @@ import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github (
   Github (..),
   mkGithubProvider,
  )
-import "wai-middleware-auth" Network.Wai.Middleware.Auth.Provider qualified as Wai
 import "servant-server" Servant (
   AuthProtect,
   Context (EmptyContext, (:.)),
   Get,
   Handler,
   NamedRoutes,
-  StdMethod (GET),
-  UVerb,
   Union,
-  WithStatus (WithStatus),
+  WithStatus,
   type (:>),
  )
 import "servant" Servant.API.Generic ((:-))
@@ -86,7 +82,6 @@ server OAuthConfig {_callbackUrl} settings =
     { home = do
         let (Github {githubOAuth2}) = provider settings
             githubLoginUrl = getRedirectUrl _callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
-        liftIO $ print githubLoginUrl
         pure $
           [shamlet|
             <h3> Home - Basic Example
