@@ -20,6 +20,7 @@ extra-source-files:
 library
   exposed-modules:
       Servant.OAuth2
+      Servant.OAuth2.Cookies
   other-modules:
       Paths_servant_oauth2
   hs-source-dirs:

@@ -6,7 +6,10 @@
 module Main where
 
 import Config
+import "base" Data.Maybe (fromJust, isJust)
+import "text" Data.Text (Text)
 import "base" GHC.Generics (Generic)
+import "wai" Network.Wai (Request)
 import "warp" Network.Wai.Handler.Warp (run)
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 (
   OAuth2 (..),
@@ -28,8 +31,11 @@ import "servant-server" Servant (
 import "servant" Servant.API.Generic ((:-))
 import "servant-blaze" Servant.HTML.Blaze (HTML)
 import Servant.OAuth2
+import Servant.OAuth2.Cookies
 import "servant-server" Servant.Server.Experimental.Auth (
+  AuthHandler,
   AuthServerData,
+  mkAuthHandler,
  )
 import "servant-server" Servant.Server.Generic (
   AsServerT,
@@ -46,8 +52,21 @@ type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
 type instance AuthServerData (AuthProtect "oauth2-github") = Union OAuth2Result
 
 
+-- | This will be the name of the logged in user. We'll just display it.
+type instance AuthServerData (AuthProtect "optional-cookie") = Maybe Text
+
+
+optionalUserAuthHandler :: Key -> AuthHandler Request (Maybe Text)
+optionalUserAuthHandler key = mkAuthHandler f
+ where
+  f :: Request -> Handler (Maybe Text)
+  f req = do
+    let sessionId = getSessionIdFromCookie req key
+    pure sessionId
+
+
 data Routes mode = Routes
-  { home :: mode :- Get '[HTML] Html
+  { home :: mode :- AuthProtect "optional-cookie" :> Get '[HTML] Html
   , auth ::
       mode
         :- AuthProtect "oauth2-github"
@@ -73,14 +92,18 @@ server ::
   Routes (AsServerT Handler)
 server OAuthConfig {_callbackUrl} settings =
   Routes
-    { home = do
+    { home = \user -> do
         let (Github {githubOAuth2}) = provider settings
             githubLoginUrl = getRedirectUrl _callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+            loggedIn = isJust user
         pure $
           [shamlet|
             <h3> Home - Example with Cookies
             <p>
-                <a href="#{githubLoginUrl}"> Login
+                $if not loggedIn
+                  <a href="#{githubLoginUrl}"> Login
+                $else
+                  Welcome #{fromJust user}!
           |]
     , auth = authServer
     }
@@ -97,7 +120,7 @@ main = do
 
   key <- getDefaultKey
   let ghSettings = mkSettings key (_oauth config)
-      context = oauth2AuthHandler ghSettings :. EmptyContext
+      context = optionalUserAuthHandler key :. oauth2AuthHandler ghSettings :. EmptyContext
       nat = id
 
   run 8080 $
