@@ -6,7 +6,6 @@
 module Main where
 
 import Config
-import "base" Control.Monad.IO.Class (liftIO)
 import "base" GHC.Generics (Generic)
 import "warp" Network.Wai.Handler.Warp (run)
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 (

@@ -10,11 +10,13 @@ import "bytestring" Data.ByteString (ByteString)
 import "base64-bytestring" Data.ByteString.Base64.URL qualified as Base64
 import "bytestring" Data.ByteString.Lazy qualified as BSL
 import "base" Data.Kind (Type)
+import "base" Data.List qualified as List
 import "text" Data.Text (Text, intercalate)
 import "text" Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import "base" GHC.Generics (Generic)
 import "http-types" Network.HTTP.Types (
   Status (Status),
+  hCookie,
   status200,
  )
 import "hoauth2" Network.OAuth.OAuth2 qualified as OA2
@@ -58,6 +60,7 @@ import "clientsession" Web.ClientSession (
 import "cookie" Web.Cookie (
   SetCookie (..),
   defaultSetCookie,
+  parseCookies,
   sameSiteStrict,
  )
 
@@ -108,13 +111,12 @@ oauth2AuthHandler settings = mkAuthHandler f
   f req = do
     resp <- runOAuth2 req (provider settings) onSuccess onFailure
     let thing = snd . head $ Wai.responseHeaders resp
-    liftIO $ print thing
     case Wai.responseStatus resp of
       Status 200 _ -> success settings $ thing
       Status 401 _ -> throwError err401
       Status 403 _ -> throwError err403
       Status 501 _ -> throwError err501
-      _ -> error "Unknown error."
+      _ -> error $ "Unknown error: " <> show thing
 
 
 -- | An extremely unfortunate way of getting the redirect URL; stolen from
@@ -217,3 +219,16 @@ buildSessionCookie key sid = do
       }
  where
   oneWeek = Just $ 3600 * 24 * 7
+
+
+getSessionIdFromCookie :: Binary.Binary s => Request -> Key -> Maybe s
+getSessionIdFromCookie request key = maybeSessionId
+ where
+  fromEither = either (const Nothing)
+  maybeSessionId = do
+    cookies <- parseCookies <$> List.lookup hCookie (Wai.requestHeaders request)
+    v <- List.lookup ourCookie cookies
+    e <- fromEither Just $ Base64.decode v
+    x <- decrypt key e
+    i <- fromEither (\(_, _, c) -> Just c) $ Binary.decodeOrFail (BSL.fromStrict x)
+    pure i
