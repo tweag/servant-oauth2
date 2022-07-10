@@ -36,7 +36,7 @@ data Routes mode = Routes
 
 type OAuth2Result = Text
 
-settings :: OAuth2Settings Text
+settings :: OAuth2Settings OAuth2Result
 settings =
   defaultOAuth2Settings
 

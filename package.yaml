@@ -30,7 +30,6 @@ default-extensions:
   - TypeApplications
   - TypeOperators
 
-
 dependencies:
   - base >= 4.7 && < 5
   - base64-bytestring
@@ -38,6 +37,7 @@ dependencies:
   - bytestring
   - clientsession
   - cookie
+  - hoauth2
   - http-types
   - servant
   - servant-blaze
@@ -45,17 +45,17 @@ dependencies:
   - shakespeare
   - text
   - tomland
+  - uri-bytestring
   - wai
   - wai-middleware-auth
   - warp
 
 executables:
-  example:
-    source-dirs:      example
+  example-basic:
+    source-dirs:      example-basic
     main:             Main.hs
     dependencies:
       - servant-oauth2
-
 
 library:
   source-dirs: src
