@@ -45,6 +45,9 @@ import "servant-server" Servant.Server.Generic (
 import "uri-bytestring" URI.ByteString qualified as U
 
 
+data Tag a b = Tag { unTag :: b }
+
+
 -- | This is the result of successful completion of the OAuth2 login workflow;
 -- it is the identifier that comes back from the provider.
 type Ident = ByteString
@@ -57,12 +60,12 @@ data OAuth2Routes (rs :: [Type]) mode = AuthRoutes
 
 
 authServer ::
-  forall (rs :: [Type]).
-  Union rs ->
+  forall a (rs :: [Type]).
+  Tag a (Union rs) ->
   OAuth2Routes rs (AsServerT Handler)
 authServer h =
   AuthRoutes
-    { complete = pure h
+    { complete = pure (unTag h)
     }
 
 
@@ -70,17 +73,17 @@ oauth2AuthHandler ::
   forall p rs.
   (Wai.AuthProvider p) =>
   OAuth2Settings p rs ->
-  AuthHandler Request (Union rs)
+  AuthHandler Request (Tag p (Union rs))
 oauth2AuthHandler settings = mkAuthHandler f
  where
   onSuccess ident = pure $ Wai.responseLBS status200 [("", ident)] ""
   onFailure status reason = pure $ Wai.responseLBS status [("", reason)] ""
-  f :: Request -> Handler (Union rs)
+  f :: Request -> Handler (Tag p (Union rs))
   f req = do
     resp <- runOAuth2 req (provider settings) onSuccess onFailure
     let thing = snd . head $ Wai.responseHeaders resp
     case Wai.responseStatus resp of
-      Status 200 _ -> success settings $ thing
+      Status 200 _ -> fmap Tag $ success settings $ thing
       Status 401 _ -> throwError err401
       Status 403 _ -> throwError err403
       Status 501 _ -> throwError err501

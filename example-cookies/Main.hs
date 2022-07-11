@@ -49,7 +49,7 @@ import "clientsession" Web.ClientSession (Key, getDefaultKey)
 type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
 
 
-type instance AuthServerData (AuthProtect "oauth2-github") = Union OAuth2Result
+type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github (Union OAuth2Result)
 
 
 -- | This will be the name of the logged in user. We'll just display it.
