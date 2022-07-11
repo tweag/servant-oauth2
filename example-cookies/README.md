@@ -5,7 +5,7 @@
 Create a file in this folder called `config.toml`:
 
 ```
-[oauth]
+[oauth-github]
   name         = "servant-oauth2-example-basic"
   callback_url = "http://localhost:8080/auth/github/complete"
   id           = "..."

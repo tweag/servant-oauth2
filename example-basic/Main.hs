@@ -16,6 +16,10 @@ import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github (
   Github (..),
   mkGithubProvider,
  )
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Google (
+  Google (..),
+  mkGoogleProvider,
+ )
 import "servant-server" Servant (
   AuthProtect,
   Context (EmptyContext, (:.)),
@@ -49,15 +53,22 @@ type OAuth2Result = '[WithStatus 200 Text]
 -- This is the instance that connects up the route with the auth handler by
 -- way of the return type.
 type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github (Union OAuth2Result)
+type instance AuthServerData (AuthProtect "oauth2-google") = Tag Google (Union OAuth2Result)
 
 
 data Routes mode = Routes
   { home :: mode :- Get '[HTML] Html
-  , auth ::
+  , authGithub ::
       mode
         :- AuthProtect "oauth2-github"
           :> "auth"
           :> "github"
+          :> NamedRoutes (OAuth2Routes OAuth2Result)
+  , authGoogle ::
+      mode
+        :- AuthProtect "oauth2-google"
+          :> "auth"
+          :> "google"
           :> NamedRoutes (OAuth2Routes OAuth2Result)
   }
   deriving stock (Generic)
@@ -65,30 +76,47 @@ data Routes mode = Routes
 
 -- The final connecttion: the settings we pass in need to specify the return
 -- result that should come back.
-mkSettings :: OAuthConfig -> OAuth2Settings Github OAuth2Result
-mkSettings c =
+mkGithubSettings :: OAuthConfig -> OAuth2Settings Github OAuth2Result
+mkGithubSettings c =
   defaultOAuth2Settings $
     mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
  where
   emailAllowList = [".*"]
 
 
+-- The final connecttion: the settings we pass in need to specify the return
+-- result that should come back.
+mkGoogleSettings :: OAuthConfig -> OAuth2Settings Google OAuth2Result
+mkGoogleSettings c =
+  defaultOAuth2Settings $
+    mkGoogleProvider (_id c) (_secret c) emailAllowList Nothing
+ where
+  emailAllowList = [".*"]
+
+
 server ::
-  OAuthConfig ->
+  Text ->
   OAuth2Settings Github OAuth2Result ->
+  Text ->
+  OAuth2Settings Google OAuth2Result ->
   Routes (AsServerT Handler)
-server OAuthConfig {_callbackUrl} settings =
+server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
   Routes
     { home = do
-        let (Github {githubOAuth2}) = provider settings
-            githubLoginUrl = getRedirectUrl _callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+        let (Github {githubOAuth2}) = provider githubSettings
+            githubLoginUrl = getRedirectUrl githubCallbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+        let (Google {googleOAuth2}) = provider googleSettings
+            googleLoginUrl = getRedirectUrl googleCallbackUrl googleOAuth2 (oa2Scope googleOAuth2)
         pure $
           [shamlet|
             <h3> Home - Basic Example
             <p>
-                <a href="#{githubLoginUrl}"> Login
+                <a href="#{githubLoginUrl}"> Github Login
+                <br>
+                <a href="#{googleLoginUrl}"> Google Login
           |]
-    , auth = authServer
+    , authGithub = authServer
+    , authGoogle = authServer
     }
 
 
@@ -101,9 +129,12 @@ main = do
       pure
       eitherConfig
 
-  let ghSettings = mkSettings (_oauth config)
-      context = oauth2AuthHandler ghSettings :. EmptyContext
+  let githubSettings = mkGithubSettings (_githubOAuth config)
+      googleSettings = mkGoogleSettings (_googleOAuth config)
+      context =  oauth2AuthHandler githubSettings
+              :. oauth2AuthHandler googleSettings
+              :. EmptyContext
       nat = id
 
   run 8080 $
-    genericServeTWithContext nat (server (_oauth config) ghSettings) context
+    genericServeTWithContext nat (server (_callbackUrl (_githubOAuth config)) githubSettings (_callbackUrl (_googleOAuth config)) googleSettings) context
