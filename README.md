@@ -1,4 +1,4 @@
-# servant-oauth2-combinator
+# servant-oauth2
 
 
 #### Hacking
