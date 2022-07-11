@@ -52,17 +52,15 @@ type OAuth2Result = '[WithStatus 200 Text]
 
 -- This is the instance that connects up the route with the auth handler by
 -- way of the return type.
-type instance AuthServerData (AuthProtect "oauth2-google") = Union OAuth2Result
+type instance AuthServerData (AuthProtect "oauth2-google") = T Google (Union OAuth2Result)
+type instance AuthServerData (AuthProtect "oauth2-github") = T Github (Union OAuth2Result)
 
+data T a b = T { unT :: b }
 
 data Routes mode = Routes
   { home :: mode :- Get '[HTML] Html
-  , auth ::
-      mode
-        :- AuthProtect "oauth2-google"
-          :> "auth"
-          :> "google"
-          :> NamedRoutes (OAuth2Routes OAuth2Result)
+  , auth1 :: mode :- AuthProtect "oauth2-google" :> "auth" :> "google" :> NamedRoutes (OAuth2Routes OAuth2Result)
+  , auth2 :: mode :- AuthProtect "oauth2-github" :> "auth" :> "github" :> NamedRoutes (OAuth2Routes OAuth2Result)
   }
   deriving stock (Generic)
 
