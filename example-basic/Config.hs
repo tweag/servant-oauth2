@@ -22,11 +22,14 @@ oauthConfigCodec =
 
 
 data Config = Config
-  { _oauth :: OAuthConfig
+  { _googleOAuth :: OAuthConfig
+  , _githubOAuth :: OAuthConfig
   }
 
 
 configCodec :: TomlCodec Config
 configCodec =
   Config
-    <$> table oauthConfigCodec "oauth" .= _oauth
+    <$> table oauthConfigCodec "oauth-google" .= _googleOAuth
+    <*> table oauthConfigCodec "oauth-github" .= _githubOAuth
+

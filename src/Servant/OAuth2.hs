@@ -79,6 +79,7 @@ oauth2AuthHandler settings = mkAuthHandler f
   f req = do
     resp <- runOAuth2 req (provider settings) onSuccess onFailure
     let thing = snd . head $ Wai.responseHeaders resp
+    liftIO $ print thing
     case Wai.responseStatus resp of
       Status 200 _ -> success settings $ thing
       Status 401 _ -> throwError err401

@@ -46,6 +46,7 @@ import "tomland" Toml (decodeFileExact)
 import "clientsession" Web.ClientSession (Key, getDefaultKey)
 
 
+
 type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
 
 
@@ -119,9 +120,9 @@ main = do
       eitherConfig
 
   key <- getDefaultKey
-  let ghSettings = mkSettings key (_oauth config)
+  let ghSettings = mkSettings key (_githubOAuth config)
       context = optionalUserAuthHandler key :. oauth2AuthHandler ghSettings :. EmptyContext
       nat = id
 
   run 8080 $
-    genericServeTWithContext nat (server (_oauth config) ghSettings) context
+    genericServeTWithContext nat (server (_githubOAuth config) ghSettings) context

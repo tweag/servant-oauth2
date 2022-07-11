@@ -12,6 +12,10 @@ import "warp" Network.Wai.Handler.Warp (run)
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 (
   OAuth2 (..),
  )
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Google (
+  Google (..),
+  mkGoogleProvider,
+ )
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github (
   Github (..),
   mkGithubProvider,
@@ -48,16 +52,16 @@ type OAuth2Result = '[WithStatus 200 Text]
 
 -- This is the instance that connects up the route with the auth handler by
 -- way of the return type.
-type instance AuthServerData (AuthProtect "oauth2-github") = Union OAuth2Result
+type instance AuthServerData (AuthProtect "oauth2-google") = Union OAuth2Result
 
 
 data Routes mode = Routes
   { home :: mode :- Get '[HTML] Html
   , auth ::
       mode
-        :- AuthProtect "oauth2-github"
+        :- AuthProtect "oauth2-google"
           :> "auth"
-          :> "github"
+          :> "google"
           :> NamedRoutes (OAuth2Routes OAuth2Result)
   }
   deriving stock (Generic)
@@ -65,28 +69,28 @@ data Routes mode = Routes
 
 -- The final connecttion: the settings we pass in need to specify the return
 -- result that should come back.
-mkSettings :: OAuthConfig -> OAuth2Settings Github OAuth2Result
+mkSettings :: OAuthConfig -> OAuth2Settings Google OAuth2Result
 mkSettings c =
   defaultOAuth2Settings $
-    mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
+    mkGoogleProvider (_id c) (_secret c) emailAllowList Nothing
  where
   emailAllowList = [".*"]
 
 
 server ::
   OAuthConfig ->
-  OAuth2Settings Github OAuth2Result ->
+  OAuth2Settings Google OAuth2Result ->
   Routes (AsServerT Handler)
 server OAuthConfig {_callbackUrl} settings =
   Routes
     { home = do
-        let (Github {githubOAuth2}) = provider settings
-            githubLoginUrl = getRedirectUrl _callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+        let (Google {googleOAuth2}) = provider settings
+            loginUrl = getRedirectUrl _callbackUrl googleOAuth2 (oa2Scope googleOAuth2)
         pure $
           [shamlet|
             <h3> Home - Basic Example
             <p>
-                <a href="#{githubLoginUrl}"> Login
+                <a href="#{loginUrl}"> Login
           |]
     , auth = authServer
     }
