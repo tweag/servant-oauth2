@@ -122,7 +122,7 @@ server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
 
 main :: IO ()
 main = do
-  eitherConfig <- decodeFileExact configCodec ("./example-basic/config.toml")
+  eitherConfig <- decodeFileExact configCodec ("./config.toml")
   config <-
     either
       (\errors -> fail $ "unable to parse configuration: " <> show errors)

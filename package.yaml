@@ -37,12 +37,14 @@ dependencies:
   - cookie
   - hoauth2
   - http-types
+  - mtl
   - servant
   - servant-blaze
   - servant-server
   - shakespeare
   - text
   - tomland
+  - unordered-containers
   - uri-bytestring
   - wai
   - wai-middleware-auth
@@ -57,6 +59,12 @@ executables:
 
   example-cookies:
     source-dirs:      example-cookies
+    main:             Main.hs
+    dependencies:
+      - servant-oauth2
+
+  example-auth:
+    source-dirs:      example-authorised
     main:             Main.hs
     dependencies:
       - servant-oauth2

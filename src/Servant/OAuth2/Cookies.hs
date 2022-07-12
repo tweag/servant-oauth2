@@ -39,10 +39,7 @@ import "cookie" Web.Cookie (
 type RedirectWithCookie = Headers '[Header "Location" Text, Header "Set-Cookie" SetCookie] NoContent
 
 
-redirectWithCookie ::
-  Text ->
-  SetCookie ->
-  RedirectWithCookie
+redirectWithCookie :: Text -> SetCookie -> RedirectWithCookie
 redirectWithCookie destination cookie =
   addHeader destination (addHeader cookie NoContent)
 

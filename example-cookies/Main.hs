@@ -111,7 +111,7 @@ server OAuthConfig {_callbackUrl} settings =
 
 main :: IO ()
 main = do
-  eitherConfig <- decodeFileExact configCodec ("./example-cookies/config.toml")
+  eitherConfig <- decodeFileExact configCodec ("./config.toml")
   config <-
     either
       (\errors -> fail $ "unable to parse configuration: " <> show errors)

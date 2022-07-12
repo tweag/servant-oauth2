@@ -22,7 +22,8 @@ Cookie example:
 
 You'll need to make a GitHub OAuth application.
 
-The details of which you'll need to place in `./example-basic/config.toml`.
+The details of which you'll need to place in `./config.toml`. See
+`./config.example.toml` for an example.
 
 The most important detail is that the callback URL on github, and in the
 config, is set to the same thing:
