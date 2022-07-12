@@ -1,5 +1,9 @@
 # servant-oauth2
 
+This is a modern servant wrapper around the
+[wai-middleware-auth](https://github.com/fpco/wai-middleware-auth) OAuth2
+provider implementations.
+
 
 #### Hacking
 
