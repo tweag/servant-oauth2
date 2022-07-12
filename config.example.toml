@@ -1,21 +1,11 @@
-# Example-Cookies
+[oauth-google]
+  name         = "servant-oauth2-example-basic"
+  callback_url = "http://localhost:8080/auth/google/complete"
+  id           = "..."
+  secret       = "..."
 
-### Setup
-
-Create a file in `./example-basic` called `config.toml`:
-
-```
 [oauth-github]
   name         = "servant-oauth2-example-basic"
   callback_url = "http://localhost:8080/auth/github/complete"
   id           = "..."
   secret       = "..."
-```
-
-### Running
-
-From the home directory:
-
-```
-stack run -- example-cookies
-```

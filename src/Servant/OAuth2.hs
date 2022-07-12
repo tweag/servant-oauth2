@@ -60,9 +60,10 @@ data OAuth2Routes (rs :: [Type]) mode = AuthRoutes
 
 
 authServer ::
-  forall a (rs :: [Type]).
+  forall m a (rs :: [Type]).
+  Monad m =>
   Tag a (Union rs) ->
-  OAuth2Routes rs (AsServerT Handler)
+  OAuth2Routes rs (AsServerT m)
 authServer h =
   AuthRoutes
     { complete = pure (unTag h)

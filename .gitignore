@@ -23,3 +23,4 @@ cabal.project.local~
 .ghc.environment.*
 
 client_session_key.aes
+config.toml

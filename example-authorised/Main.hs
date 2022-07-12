@@ -1,0 +1,332 @@
+{-# language NamedFieldPuns  #-}
+{-# language QuasiQuotes     #-}
+{-# language TemplateHaskell #-}
+{-# language TypeFamilies    #-}
+
+module Main where
+
+import Config
+import Control.Monad.Reader (ReaderT, ask, runReaderT, withReaderT)
+import Data.Coerce (coerce)
+import Data.HashMap.Strict qualified as H
+import Data.Maybe (fromJust, isJust)
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Text.Encoding (decodeUtf8)
+import Data.Text.IO qualified as Text
+import GHC.Generics (Generic)
+import Network.Wai (Request)
+import Network.Wai.Handler.Warp (run)
+import Network.Wai.Middleware.Auth.OAuth2
+  ( OAuth2 (..)
+  )
+import Network.Wai.Middleware.Auth.OAuth2.Github
+  ( Github (..)
+  , mkGithubProvider
+  )
+import Network.Wai.Middleware.Auth.OAuth2.Google
+  ( Google (..)
+  , mkGoogleProvider
+  )
+import Servant
+  ( AuthProtect
+  , Context (EmptyContext, (:.))
+  , Get
+  , Handler
+  , NamedRoutes
+  , Proxy (Proxy)
+  , ServerT
+  , StdMethod (GET)
+  , UVerb
+  , Union
+  , WithStatus (WithStatus)
+  , err404
+  , hoistServer
+  , respond
+  , throwError
+  , type (:>)
+  )
+import Servant.API.Generic ((:-))
+import Servant.HTML.Blaze (HTML)
+import Servant.OAuth2
+import Servant.OAuth2.Cookies
+import Servant.Server.Experimental.Auth
+  ( AuthHandler
+  , AuthServerData
+  , mkAuthHandler
+  )
+import Servant.Server.Generic
+  ( AsServerT
+  , genericServeTWithContext
+  )
+import Text.Hamlet (Html, shamlet)
+import Toml (decodeFileExact)
+import Web.ClientSession (Key, getDefaultKey)
+import Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteStrict)
+
+type Db = H.HashMap Text User
+
+
+data Role = Anyone | Admin
+
+
+data User = User
+  { email :: Text
+  , role  :: Text
+  }
+  deriving stock (Show)
+
+
+data Env (r :: Role) = Env
+  { user              :: Maybe User
+  , githubSettings    :: OAuth2Settings Github OAuth2Result
+  , githubOAuthConfig :: OAuthConfig
+  , googleSettings    :: OAuth2Settings Google OAuth2Result
+  , googleOAuthConfig :: OAuthConfig
+  }
+
+
+type PageM      = ReaderT (Env 'Anyone) Handler
+type AdminPageM = ReaderT (Env 'Admin)  Handler
+
+
+type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
+
+
+type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github (Union OAuth2Result)
+
+
+type instance AuthServerData (AuthProtect "oauth2-google") = Tag Google (Union OAuth2Result)
+
+
+type instance AuthServerData (AuthProtect "optional-cookie") = Maybe User
+
+
+optionalUserAuthHandler :: Db -> Key -> AuthHandler Request (Maybe User)
+optionalUserAuthHandler db key = mkAuthHandler f
+ where
+  f :: Request -> Handler (Maybe User)
+  f req = do
+    let sessionId = getSessionIdFromCookie req key
+    -- Here, we know the sessionId is, infact, the email address of the user.
+    -- So, we can just look it up in the database.
+    pure $ maybe Nothing (flip H.lookup db . decodeUtf8) sessionId
+
+
+data Routes mode = Routes
+  { site :: mode :- AuthProtect "optional-cookie" :> NamedRoutes (SiteRoutes)
+  , authGithub ::
+      mode
+        :- AuthProtect "oauth2-github"
+          :> "auth"
+          :> "github"
+          :> NamedRoutes (OAuth2Routes OAuth2Result)
+  , authGoogle ::
+      mode
+        :- AuthProtect "oauth2-google"
+          :> "auth"
+          :> "google"
+          :> NamedRoutes (OAuth2Routes OAuth2Result)
+  }
+  deriving stock (Generic)
+
+
+data SiteRoutes mode = SiteRoutes
+  { home   :: mode :- Get '[HTML] Html
+  , admin  :: mode :- "admin" :> NamedRoutes AdminRoutes
+  , logout :: mode :- "logout" :> UVerb 'GET '[HTML] '[WithStatus 303 RedirectWithCookie]
+  }
+  deriving stock (Generic)
+
+
+emptyCookie :: SetCookie
+emptyCookie = defaultSetCookie
+  { setCookieName     = ourCookie
+  , setCookieValue    = ""
+  , setCookieMaxAge   = Just 0
+  , setCookiePath     = Just "/"
+  , setCookieSameSite = Just sameSiteStrict
+  , setCookieHttpOnly = True
+  , setCookieSecure   = False
+  }
+
+
+siteServer :: SiteRoutes (AsServerT PageM)
+siteServer = SiteRoutes
+  { home   = homeHandler
+  , admin  = adminServer
+  , logout = respond $ WithStatus @303 (redirectWithCookie "/" emptyCookie)
+  }
+
+
+data AdminRoutes mode = AdminRoutes
+  { adminHome :: mode :- Get '[HTML] Html
+  }
+  deriving stock (Generic)
+
+
+
+adminHandler :: AdminPageM Html
+adminHandler = do
+  let secrets =
+        [ "secret 1" :: Text
+        , "mundane secret 2"
+        , "you can't know this"
+        ]
+  u <- getAdmin
+  pure $
+    [shamlet|
+      <h3> Admin
+      <p> Secrets:
+
+      <ul>
+        $forall secret <- secrets
+          <li> #{secret}
+
+      <p> Hello Admin person whose identity is: #{show u}.
+    |]
+
+
+adminServer :: ServerT (NamedRoutes AdminRoutes) PageM
+adminServer = verifyAdmin $ AdminRoutes
+  { adminHome = adminHandler
+  }
+
+
+isAdmin :: Maybe User -> Bool
+isAdmin (Just (User {role})) = role == "admin"
+isAdmin _ = False
+
+
+isLoggedIn :: PageM Bool
+isLoggedIn = pure . isJust .user =<< ask
+
+
+getUser :: PageM (Maybe User)
+getUser = pure . user =<< ask
+
+
+getAdmin :: AdminPageM (User)
+getAdmin = pure . fromJust . user =<< ask
+
+
+verifyAdmin :: ServerT (NamedRoutes AdminRoutes) AdminPageM
+            -> ServerT (NamedRoutes AdminRoutes) PageM
+verifyAdmin = hoistServer (Proxy @(NamedRoutes AdminRoutes)) transform
+  where
+    transform :: AdminPageM a -> PageM a
+    transform p = do
+      env <- ask
+      let currentUser = user env
+      if isAdmin currentUser
+         then coerce p
+         else throwError err404
+
+
+homeHandler :: PageM Html
+homeHandler = do
+  env <- ask
+
+  let (Github {githubOAuth2}) = provider (githubSettings env)
+      githubCallbackUrl = _callbackUrl $ githubOAuthConfig env
+      githubLoginUrl = getRedirectUrl githubCallbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+
+  let (Google {googleOAuth2}) = provider (googleSettings env)
+      googleCallbackUrl = _callbackUrl $ googleOAuthConfig env
+      googleLoginUrl = getRedirectUrl googleCallbackUrl googleOAuth2 (oa2Scope googleOAuth2)
+
+  loggedIn <- isLoggedIn
+  u <- getUser
+  pure $
+    [shamlet|
+      <h3> Home - Example with authorisation
+
+      $if not loggedIn
+        <p>
+          <a href="#{githubLoginUrl}"> Login with Github
+          <br>
+          <a href="#{googleLoginUrl}"> Login with Google
+      $else
+        Welcome #{show u}!
+        <p>
+          <a href="/logout"> Logout
+
+      $if isAdmin u
+        <p>
+          <a href="/admin"> Access the admin area!
+      $else
+        <p>
+          You're not an admin, but perhaps you may like to
+          <a href="/admin"> try and hack into the admin area!
+    |]
+
+
+server :: Routes (AsServerT PageM)
+server =
+  Routes
+    { site = \user ->
+        let addUser env = env { user = user }
+        in hoistServer
+            (Proxy @(NamedRoutes SiteRoutes))
+            (withReaderT addUser)
+            siteServer
+    , authGithub = authServer
+    , authGoogle = authServer
+    }
+
+
+mkGithubSettings :: Key -> OAuthConfig -> OAuth2Settings Github OAuth2Result
+mkGithubSettings key c = settings
+ where
+  toSessionId = pure . id
+  provider = mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
+  settings = simpleCookieOAuth2Settings provider toSessionId key
+  emailAllowList = [".*"]
+
+
+mkGoogleSettings :: Key -> OAuthConfig -> OAuth2Settings Google OAuth2Result
+mkGoogleSettings key c = settings
+ where
+  toSessionId = pure . id
+  provider = mkGoogleProvider (_id c) (_secret c) emailAllowList Nothing
+  settings = simpleCookieOAuth2Settings provider toSessionId key
+  emailAllowList = [".*"]
+
+
+main :: IO ()
+main = do
+  eitherConfig <- decodeFileExact configCodec ("./config.toml")
+  config <-
+    either
+      (\errors -> fail $ "unable to parse configuration: " <> show errors)
+      pure
+      eitherConfig
+
+  key <- getDefaultKey
+  db <- loadDb
+
+  let githubSettings = mkGithubSettings key (_githubOAuth config)
+      googleSettings = mkGoogleSettings key (_googleOAuth config)
+      env = Env Nothing
+              githubSettings (_githubOAuth config)
+              googleSettings (_googleOAuth config)
+      context
+        =  optionalUserAuthHandler db key
+        :. oauth2AuthHandler githubSettings
+        :. oauth2AuthHandler googleSettings
+        :. EmptyContext
+
+  let nat :: PageM a -> Handler a
+      nat = flip runReaderT env
+
+  run 8080 $
+    genericServeTWithContext nat server context
+
+
+loadDb :: IO Db
+loadDb = do
+  ls <- Text.lines <$> Text.readFile "example-authorised/db.txt"
+  let raw = map (Text.split (==',')) ls
+      mkRow [u,r] = (u, User u r)
+      mkRow _ = error "Inconsistent database state."
+  pure $ H.fromList $ map mkRow raw

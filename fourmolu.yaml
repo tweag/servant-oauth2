@@ -1,6 +1,6 @@
 indentation: 2
 comma-style: leading
-import-export-style: diff-friendly
+import-export-style: leading
 indent-wheres: false
 record-brace-space: true
 respectful: true
