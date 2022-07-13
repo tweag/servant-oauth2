@@ -1,24 +1,21 @@
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# language NamedFieldPuns #-}
+{-# language TypeFamilies   #-}
 
 module Servant.OAuth2 where
 
 import "base" Control.Monad.IO.Class (MonadIO, liftIO)
 import "bytestring" Data.ByteString (ByteString)
 import "base" Data.Kind (Type)
-import "text" Data.Text (Text, intercalate)
-import "text" Data.Text.Encoding (decodeUtf8, encodeUtf8)
+import "text" Data.Text (Text)
+import "text" Data.Text.Encoding (decodeUtf8)
 import "base" GHC.Generics (Generic)
 import "http-types" Network.HTTP.Types (
   Status (Status),
   status200,
  )
-import "hoauth2" Network.OAuth.OAuth2 qualified as OA2
 import "wai" Network.Wai (Request)
 import "wai" Network.Wai qualified as Wai
 import "wai-middleware-auth" Network.Wai.Middleware.Auth qualified as Wai
-import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 qualified as Wai
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.Provider qualified as Wai
 import "servant-server" Servant (
   Handler,
@@ -42,7 +39,6 @@ import "servant-server" Servant.Server.Experimental.Auth (
 import "servant-server" Servant.Server.Generic (
   AsServerT,
  )
-import "uri-bytestring" URI.ByteString qualified as U
 
 
 data Tag a b = Tag { unTag :: b }
@@ -89,36 +85,6 @@ oauth2AuthHandler settings = mkAuthHandler f
       Status 403 _ -> throwError err403
       Status 501 _ -> throwError err501
       _ -> error $ "Unknown error: " <> show thing
-
-
--- | An extremely unfortunate way of getting the redirect URL; stolen from
--- 'Network.Wai.Auth.Internal'.
-getRedirectUrl :: Text -> Wai.OAuth2 -> Maybe [Text] -> Text
-getRedirectUrl callbackUrl waiOa2 oa2Scope = decodeUtf8 redirectUrl
- where
-  scope = (encodeUtf8 . intercalate " ") <$> oa2Scope
-  redirectUrl =
-    getRedirectURI $
-      (flip OA2.appendQueryParams)
-        (OA2.authorizationUrl oa2)
-        (maybe [] ((: []) . ("scope",)) scope)
-  oa2 = maybe (error "Couldn't construct the OAuth2 record.") id fromInteralOAuth2
-  getRedirectURI = U.serializeURIRef'
-  parseAbsoluteURI urlTxt = do
-    case U.parseURI U.strictURIParserOptions (encodeUtf8 urlTxt) of
-      Left _ -> Nothing
-      Right url -> pure url
-  fromInteralOAuth2 = do
-    authEndpointURI <- parseAbsoluteURI $ Wai.oa2AuthorizeEndpoint waiOa2
-    callbackURI <- parseAbsoluteURI callbackUrl
-    pure $
-      OA2.OAuth2
-        { OA2.oauth2ClientId = Wai.oa2ClientId waiOa2
-        , OA2.oauth2ClientSecret = error "Client secret not needed."
-        , OA2.oauth2AuthorizeEndpoint = authEndpointURI
-        , OA2.oauth2TokenEndpoint = error "No token endpoint"
-        , OA2.oauth2RedirectUri = callbackURI
-        }
 
 
 -- | In the context of Wai, run the 'complete' step of the OAuth2 process. We

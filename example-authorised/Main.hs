@@ -50,6 +50,7 @@ import Servant.API.Generic ((:-))
 import Servant.HTML.Blaze (HTML)
 import Servant.OAuth2
 import Servant.OAuth2.Cookies
+import Servant.OAuth2.Hacks
 import Servant.Server.Experimental.Auth
   ( AuthHandler
   , AuthServerData
@@ -227,13 +228,11 @@ homeHandler :: PageM Html
 homeHandler = do
   env <- ask
 
-  let (Github {githubOAuth2}) = provider (githubSettings env)
-      githubCallbackUrl = _callbackUrl $ githubOAuthConfig env
-      githubLoginUrl = getRedirectUrl githubCallbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+  let githubCallbackUrl = _callbackUrl $ githubOAuthConfig env
+      githubLoginUrl = getGithubLoginUrl githubCallbackUrl (githubSettings env)
 
-  let (Google {googleOAuth2}) = provider (googleSettings env)
-      googleCallbackUrl = _callbackUrl $ googleOAuthConfig env
-      googleLoginUrl = getRedirectUrl googleCallbackUrl googleOAuth2 (oa2Scope googleOAuth2)
+  let googleCallbackUrl = _callbackUrl $ googleOAuthConfig env
+      googleLoginUrl = getGoogleLoginUrl googleCallbackUrl (googleSettings env)
 
   loggedIn <- isLoggedIn
   u <- getUser
