@@ -18,7 +18,7 @@ Cookie example:
 ./hack example-cookies
 ```
 
-Authorised example:
+Example that performs "authorisation" (i.e. there is an 'admin' section):
 ```
 ./hack example-auth
 ```

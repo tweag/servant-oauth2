@@ -6,26 +6,26 @@
 module Main where
 
 import Config
-import Control.Monad.Reader (ReaderT, ask, runReaderT, withReaderT)
-import Data.Coerce (coerce)
-import Data.HashMap.Strict qualified as H
-import Data.Maybe (fromJust, isJust)
-import Data.Text (Text)
-import Data.Text qualified as Text
-import Data.Text.Encoding (decodeUtf8)
-import Data.Text.IO qualified as Text
-import GHC.Generics (Generic)
-import Network.Wai (Request)
-import Network.Wai.Handler.Warp (run)
-import Network.Wai.Middleware.Auth.OAuth2.Github
+import "mtl" Control.Monad.Reader (ReaderT, ask, runReaderT, withReaderT)
+import "base" Data.Coerce (coerce)
+import "unordered-containers" Data.HashMap.Strict qualified as H
+import "base" Data.Maybe (fromJust, isJust)
+import "text" Data.Text (Text)
+import "text" Data.Text qualified as Text
+import "text" Data.Text.Encoding (decodeUtf8)
+import "text" Data.Text.IO qualified as Text
+import "base" GHC.Generics (Generic)
+import "wai" Network.Wai (Request)
+import "warp" Network.Wai.Handler.Warp (run)
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github
   ( Github (..)
   , mkGithubProvider
   )
-import Network.Wai.Middleware.Auth.OAuth2.Google
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Google
   ( Google (..)
   , mkGoogleProvider
   )
-import Servant
+import "servant-server" Servant
   ( AuthProtect
   , Context (EmptyContext, (:.))
   , Get
@@ -42,24 +42,25 @@ import Servant
   , throwError
   , type (:>)
   )
-import Servant.API.Generic ((:-))
-import Servant.HTML.Blaze (HTML)
+import "servant" Servant.API.Generic ((:-))
+import "servant-blaze" Servant.HTML.Blaze (HTML)
 import Servant.OAuth2
 import Servant.OAuth2.Cookies
 import Servant.OAuth2.Hacks
-import Servant.Server.Experimental.Auth
+import "servant-server" Servant.Server.Experimental.Auth
   ( AuthHandler
   , AuthServerData
   , mkAuthHandler
   )
-import Servant.Server.Generic
+import "servant-server" Servant.Server.Generic
   ( AsServerT
   , genericServeTWithContext
   )
-import Text.Hamlet (Html, shamlet)
-import Toml (decodeFileExact)
-import Web.ClientSession (Key, getDefaultKey)
-import Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteStrict)
+import "shakespeare" Text.Hamlet (Html, shamlet)
+import "tomland" Toml (decodeFileExact)
+import "clientsession" Web.ClientSession (Key, getDefaultKey)
+import "cookie" Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteStrict)
+
 
 type Db = H.HashMap Text User
 
