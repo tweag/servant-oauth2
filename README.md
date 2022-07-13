@@ -18,6 +18,11 @@ Cookie example:
 ./hack example-cookies
 ```
 
+Authorised example:
+```
+./hack example-auth
+```
+
 #### Before running
 
 You'll need to make a GitHub OAuth application.
@@ -36,11 +41,10 @@ http://localhost:8080/auth/github/complete
 
 - [ ] Document exported functions
 - [ ] More detailed readme documentation
-- [ ] Build in an example of 'Authorisation'; i.e. lifting the logins to the
-  type-level
 - [ ] CI
 - [ ] Contributing guide
 - [ ] Refactor `wai-middleware-auth` to be more convenient
+- [x] Build in an example of 'Authorisation'; i.e. lifting the logins to the type-level
 - [x] Show an example of multiple auths (distinguish by type)
 - [x] See if we can get away with only doing it for `complete`
 - [x] Pass settings through somehow
