@@ -49,29 +49,37 @@ data Tag a b = Tag { unTag :: (Union b) }
 type Ident = ByteString
 
 
+-- | This contains the 'complete' route that the given OAuth2 provider will
+-- return to. This implementation for this is fully given by the 'authServer'
+-- function.
 data OAuth2Routes (rs :: [Type]) mode = AuthRoutes
   { complete :: mode :- "complete" :> UVerb 'GET '[HTML] rs
-  -- { complete :: mode :- "complete" :> Get '[HTML] Text
   }
   deriving stock (Generic)
 
 
-authServer ::
-  forall m a (rs :: [Type]).
-  Monad m =>
-  Tag a rs ->
-  OAuth2Routes rs (AsServerT m)
+-- | The server implementation for the 'OAuth2Routes' routes. Ultimately,
+-- this just returns the result of the 'success' function from
+--'OAuth2Settings'.
+authServer :: forall m a (rs :: [Type])
+   .  Monad m
+  => Tag a rs
+  -> OAuth2Routes rs (AsServerT m)
 authServer h =
   AuthRoutes
     { complete = pure (unTag h)
     }
 
 
-oauth2AuthHandler ::
-  forall p rs.
-  (Wai.AuthProvider p) =>
-  OAuth2Settings p rs ->
-  AuthHandler Request (Tag p rs)
+-- | The central handler that runs when the 'complete' route is called. In
+-- here we pass of to 'Wai.handleLogin' via 'runOAuth2', and we unwrap the
+-- results; if there was any error, we throw a servant error, or, in the happy
+-- case that we successfully authenticate, we call the 'success' function and
+-- return, which is then (after unwrapping) returned by the 'authServer'.
+oauth2AuthHandler :: forall p rs
+   . Wai.AuthProvider p
+  => OAuth2Settings p rs
+  -> AuthHandler Request (Tag p rs)
 oauth2AuthHandler settings = mkAuthHandler f
  where
   onSuccess ident = pure $ Wai.responseLBS status200 [("", ident)] ""
@@ -89,14 +97,14 @@ oauth2AuthHandler settings = mkAuthHandler f
 
 
 -- | In the context of Wai, run the 'complete' step of the OAuth2 process. We
--- return a Wai.Response. We will interpret this later into Servant responses.
-runOAuth2 ::
-  (MonadIO m, Wai.AuthProvider p) =>
-  Request ->
-  p ->
-  (Wai.AuthLoginState -> IO Wai.Response) ->
-  (Status -> ByteString -> IO Wai.Response) ->
-  m Wai.Response
+-- return a 'Wai.Response', unfortunately, which we will later interpret into
+-- Servant responses.
+runOAuth2 :: (MonadIO m, Wai.AuthProvider p)
+  => Request
+  -> p
+  -> (Wai.AuthLoginState -> IO Wai.Response)
+  -> (Status -> ByteString -> IO Wai.Response)
+  -> m Wai.Response
 runOAuth2 request p onSuccess onFailure = do
   let appRoot = Wai.smartAppRoot request
       suffix = ["complete"]
@@ -105,12 +113,21 @@ runOAuth2 request p onSuccess onFailure = do
   liftIO $ Wai.handleLogin provider request suffix providerUrl onSuccess onFailure
 
 
+-- | Used to record the particular provider you are using, along with the
+-- ultimate return type of the 'complete' route, that will, in the end, need
+-- to agree with the particular implementation of the 'success' function.
 data OAuth2Settings p (rs :: [Type]) = OAuth2Settings
   { success :: Ident -> Handler (Union rs)
   , provider :: p
   }
 
 
+-- | Default settings, only really suitable for demo purposes, that simply
+-- always respond with just the return value of the OAuth2 route; typically
+-- the email, depending on how your provider is configured.
+--
+-- Note that in order to use this, your instance of 'AuthServerData' must
+-- return '\'[WithStatus 200 Text]'.
 defaultOAuth2Settings :: p -> OAuth2Settings p '[WithStatus 200 Text]
 defaultOAuth2Settings p =
   OAuth2Settings

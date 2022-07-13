@@ -100,11 +100,6 @@ server ::
 server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
   Routes
     { home = do
-        -- let (Github {githubOAuth2}) = provider githubSettings
-        --     githubLoginUrl = getRedirectUrl githubCallbackUrl githubOAuth2 (oa2Scope githubOAuth2)
-        -- let (Google {googleOAuth2}) = provider googleSettings
-        --     googleLoginUrl = getRedirectUrl googleCallbackUrl googleOAuth2 (oa2Scope googleOAuth2)
-
         let githubLoginUrl = getGithubLoginUrl githubCallbackUrl githubSettings
             googleLoginUrl = getGoogleLoginUrl googleCallbackUrl googleSettings
 
