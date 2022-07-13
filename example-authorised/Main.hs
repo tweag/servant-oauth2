@@ -17,9 +17,6 @@ import Data.Text.IO qualified as Text
 import GHC.Generics (Generic)
 import Network.Wai (Request)
 import Network.Wai.Handler.Warp (run)
-import Network.Wai.Middleware.Auth.OAuth2
-  ( OAuth2 (..)
-  )
 import Network.Wai.Middleware.Auth.OAuth2.Github
   ( Github (..)
   , mkGithubProvider
