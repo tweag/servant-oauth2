@@ -1,3 +1,8 @@
+{-|
+A collection of hacky functions needed to work around the fact that
+'wai-middleware-auth' is presently defined in terms of Wai, and, really, we
+want something that is defined for Servant.
+-}
 {-# language NamedFieldPuns #-}
 {-# language ViewPatterns   #-}
 {-# language TupleSections  #-}
@@ -17,20 +22,17 @@ import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Google
   ( Google (..)
   )
-import "wai-middleware-auth" Network.Wai.Middleware.Auth.Provider qualified as Wai
 import Servant.OAuth2
 import "uri-bytestring" URI.ByteString qualified as U
 
 
-getCallbackUrl :: Wai.Provider -> Text
-getCallbackUrl = undefined
-
-
+-- | For some settings specialised to 'Github', return the login url.
 getGithubLoginUrl :: Text -> OAuth2Settings Github a  -> Text
 getGithubLoginUrl callbackUrl (provider -> Github { githubOAuth2 })
   = getRedirectUrl callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
 
 
+-- | For some settings specialised to 'Google', return the login url.
 getGoogleLoginUrl :: Text -> OAuth2Settings Google a  -> Text
 getGoogleLoginUrl callbackUrl (provider -> Google { googleOAuth2 })
   = getRedirectUrl callbackUrl googleOAuth2 (oa2Scope googleOAuth2)
@@ -64,5 +66,3 @@ getRedirectUrl callbackUrl waiOa2 oa2Scope = decodeUtf8 redirectUrl
         , OA2.oauth2TokenEndpoint = error "No token endpoint"
         , OA2.oauth2RedirectUri = callbackURI
         }
-
-

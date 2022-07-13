@@ -1,3 +1,7 @@
+{-|
+
+
+-}
 {-# language NamedFieldPuns #-}
 {-# language TypeFamilies   #-}
 
@@ -41,7 +45,13 @@ import "servant-server" Servant.Server.Generic (
  )
 
 
-data Tag a b = Tag { unTag :: (Union b) }
+-- | A simple way to add a type-level tag onto the return type for your
+-- 'AuthServerData' instance. Used something like: `Tag Github ...`; this then
+-- allows you to use multiple oauth providers on one server, and have servant
+-- still pick out the right auth handler to use. See:
+-- <https://docs.servant.dev/en/stable/tutorial/Authentication.html#recap> for
+-- more detail.
+data Tag a (rs :: [Type]) = Tag { unTag :: (Union rs) }
 
 
 -- | This is the result of successful completion of the OAuth2 login workflow;

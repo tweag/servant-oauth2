@@ -35,23 +35,30 @@ import "cookie" Web.Cookie (
  )
 
 
--- | Helpful aliases.
+-- | A helpful alias.
 type RedirectWithCookie = Headers '[Header "Location" Text, Header "Set-Cookie" SetCookie] NoContent
 
 
+-- | Default name of our cookie.
+ourCookie :: ByteString
+ourCookie = "_servant_oauth2_cookie"
+
+
+-- | Set a cookie and then perform a redirection; typically used as part of
+-- logging in; i.e. after successfully performing OAuth2 authentication, we
+-- just want to redirect back to the homepage.
 redirectWithCookie :: Text -> SetCookie -> RedirectWithCookie
 redirectWithCookie destination cookie =
   addHeader destination (addHeader cookie NoContent)
 
 
--- | Build a simple cook provided you have a function that can convert the
+-- | Build a simple cookie provided you have a function that can convert the
 -- ident into a sessionId kind of object.
-simpleCookieOAuth2Settings ::
-  Binary.Binary s =>
-  p ->
-  (Ident -> Handler s) ->
-  Key ->
-  OAuth2Settings p '[WithStatus 303 RedirectWithCookie]
+simpleCookieOAuth2Settings :: Binary.Binary s
+  => p
+  -> (Ident -> Handler s)
+  -> Key
+  -> OAuth2Settings p '[WithStatus 303 RedirectWithCookie]
 simpleCookieOAuth2Settings p toSessionId key =
   (defaultOAuth2Settings p)
     { success = \ident -> do
@@ -61,17 +68,12 @@ simpleCookieOAuth2Settings p toSessionId key =
     }
 
 
-ourCookie :: ByteString
-ourCookie = "_servant_oauth2_cookie"
-
-
 -- | Make a session cookie from the ident; i.e. just set the cookie to be the
 -- ident value.
 buildSessionCookie :: Binary.Binary s => Key -> s -> IO SetCookie
 buildSessionCookie key sid = do
   encrypted <- encryptIO key $ BSL.toStrict $ Binary.encode $ sid
   pure $
-    -- Todo: Allow people to configure the cookie itself.
     defaultSetCookie
       { setCookieName = ourCookie
       , setCookieValue = Base64.encode encrypted
@@ -85,6 +87,8 @@ buildSessionCookie key sid = do
   oneWeek = Just $ 3600 * 24 * 7
 
 
+-- | Perform the decryption of the cookie in reverse order to
+-- 'buildSessionCookie'.
 getSessionIdFromCookie :: Binary.Binary s => Request -> Key -> Maybe s
 getSessionIdFromCookie request key = maybeSessionId
  where
