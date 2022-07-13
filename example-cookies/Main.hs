@@ -21,7 +21,6 @@ import "servant-server" Servant
   , Get
   , Handler
   , NamedRoutes
-  , Union
   , WithStatus
   , type (:>)
   )
@@ -48,7 +47,7 @@ import "clientsession" Web.ClientSession (Key, getDefaultKey)
 type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
 
 
-type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github (Union OAuth2Result)
+type instance AuthServerData (AuthProtect Github) = Tag Github OAuth2Result
 
 
 -- | This will be the name of the logged in user. We'll just display it.
@@ -68,7 +67,7 @@ data Routes mode = Routes
   { home :: mode :- AuthProtect "optional-cookie" :> Get '[HTML] Html
   , auth ::
       mode
-        :- AuthProtect "oauth2-github"
+        :- AuthProtect Github
           :> "auth"
           :> "github"
           :> NamedRoutes (OAuth2Routes OAuth2Result)

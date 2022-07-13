@@ -23,7 +23,6 @@ import "servant-server" Servant
   , Get
   , Handler
   , NamedRoutes
-  , Union
   , WithStatus
   , type (:>)
   )
@@ -50,8 +49,8 @@ type OAuth2Result = '[WithStatus 200 Text]
 
 -- This is the instance that connects up the route with the auth handler by
 -- way of the return type.
-type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github (Union OAuth2Result)
-type instance AuthServerData (AuthProtect "oauth2-google") = Tag Google (Union OAuth2Result)
+type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github OAuth2Result
+type instance AuthServerData (AuthProtect "oauth2-google") = Tag Google OAuth2Result
 
 
 data Routes mode = Routes

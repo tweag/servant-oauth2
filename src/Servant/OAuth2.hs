@@ -41,7 +41,7 @@ import "servant-server" Servant.Server.Generic (
  )
 
 
-data Tag a b = Tag { unTag :: b }
+data Tag a b = Tag { unTag :: (Union b) }
 
 
 -- | This is the result of successful completion of the OAuth2 login workflow;
@@ -51,6 +51,7 @@ type Ident = ByteString
 
 data OAuth2Routes (rs :: [Type]) mode = AuthRoutes
   { complete :: mode :- "complete" :> UVerb 'GET '[HTML] rs
+  -- { complete :: mode :- "complete" :> Get '[HTML] Text
   }
   deriving stock (Generic)
 
@@ -58,7 +59,7 @@ data OAuth2Routes (rs :: [Type]) mode = AuthRoutes
 authServer ::
   forall m a (rs :: [Type]).
   Monad m =>
-  Tag a (Union rs) ->
+  Tag a rs ->
   OAuth2Routes rs (AsServerT m)
 authServer h =
   AuthRoutes
@@ -70,12 +71,12 @@ oauth2AuthHandler ::
   forall p rs.
   (Wai.AuthProvider p) =>
   OAuth2Settings p rs ->
-  AuthHandler Request (Tag p (Union rs))
+  AuthHandler Request (Tag p rs)
 oauth2AuthHandler settings = mkAuthHandler f
  where
   onSuccess ident = pure $ Wai.responseLBS status200 [("", ident)] ""
   onFailure status reason = pure $ Wai.responseLBS status [("", reason)] ""
-  f :: Request -> Handler (Tag p (Union rs))
+  f :: Request -> Handler (Tag p rs)
   f req = do
     resp <- runOAuth2 req (provider settings) onSuccess onFailure
     let thing = snd . head $ Wai.responseHeaders resp

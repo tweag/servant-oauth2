@@ -35,7 +35,6 @@ import Servant
   , ServerT
   , StdMethod (GET)
   , UVerb
-  , Union
   , WithStatus (WithStatus)
   , err404
   , hoistServer
@@ -91,10 +90,10 @@ type AdminPageM = ReaderT (Env 'Admin)  Handler
 type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
 
 
-type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github (Union OAuth2Result)
+type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github OAuth2Result
 
 
-type instance AuthServerData (AuthProtect "oauth2-google") = Tag Google (Union OAuth2Result)
+type instance AuthServerData (AuthProtect "oauth2-google") = Tag Google OAuth2Result
 
 
 type instance AuthServerData (AuthProtect "optional-cookie") = Maybe User
