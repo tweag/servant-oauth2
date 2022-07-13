@@ -9,37 +9,35 @@ import Config
 import "text" Data.Text (Text)
 import "base" GHC.Generics (Generic)
 import "warp" Network.Wai.Handler.Warp (run)
-import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 (
-  OAuth2 (..),
- )
-import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github (
-  Github (..),
-  mkGithubProvider,
- )
-import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Google (
-  Google (..),
-  mkGoogleProvider,
- )
-import "servant-server" Servant (
-  AuthProtect,
-  Context (EmptyContext, (:.)),
-  Get,
-  Handler,
-  NamedRoutes,
-  Union,
-  WithStatus,
-  type (:>),
- )
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github
+  ( Github (..)
+  , mkGithubProvider
+  )
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Google
+  ( Google (..)
+  , mkGoogleProvider
+  )
+import "servant-server" Servant
+  ( AuthProtect
+  , Context (EmptyContext, (:.))
+  , Get
+  , Handler
+  , NamedRoutes
+  , Union
+  , WithStatus
+  , type (:>)
+  )
 import "servant" Servant.API.Generic ((:-))
 import "servant-blaze" Servant.HTML.Blaze (HTML)
 import Servant.OAuth2
-import "servant-server" Servant.Server.Experimental.Auth (
-  AuthServerData,
- )
-import "servant-server" Servant.Server.Generic (
-  AsServerT,
-  genericServeTWithContext,
- )
+import Servant.OAuth2.Hacks
+import "servant-server" Servant.Server.Experimental.Auth
+  ( AuthServerData
+  )
+import "servant-server" Servant.Server.Generic
+  ( AsServerT
+  , genericServeTWithContext
+  )
 import "shakespeare" Text.Hamlet (Html, shamlet)
 import "tomland" Toml (decodeFileExact)
 
@@ -103,10 +101,14 @@ server ::
 server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
   Routes
     { home = do
-        let (Github {githubOAuth2}) = provider githubSettings
-            githubLoginUrl = getRedirectUrl githubCallbackUrl githubOAuth2 (oa2Scope githubOAuth2)
-        let (Google {googleOAuth2}) = provider googleSettings
-            googleLoginUrl = getRedirectUrl googleCallbackUrl googleOAuth2 (oa2Scope googleOAuth2)
+        -- let (Github {githubOAuth2}) = provider githubSettings
+        --     githubLoginUrl = getRedirectUrl githubCallbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+        -- let (Google {googleOAuth2}) = provider googleSettings
+        --     googleLoginUrl = getRedirectUrl googleCallbackUrl googleOAuth2 (oa2Scope googleOAuth2)
+
+        let githubLoginUrl = getGithubLoginUrl githubCallbackUrl githubSettings
+            googleLoginUrl = getGoogleLoginUrl googleCallbackUrl googleSettings
+
         pure $
           [shamlet|
             <h3> Home - Basic Example

@@ -11,39 +11,38 @@ import "text" Data.Text (Text)
 import "base" GHC.Generics (Generic)
 import "wai" Network.Wai (Request)
 import "warp" Network.Wai.Handler.Warp (run)
-import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2 (
-  OAuth2 (..),
- )
-import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github (
-  Github (..),
-  mkGithubProvider,
- )
-import "servant-server" Servant (
-  AuthProtect,
-  Context (EmptyContext, (:.)),
-  Get,
-  Handler,
-  NamedRoutes,
-  Union,
-  WithStatus,
-  type (:>),
- )
+import "wai-middleware-auth" Network.Wai.Middleware.Auth.OAuth2.Github
+  ( Github (..)
+  , mkGithubProvider
+  )
+import "servant-server" Servant
+  ( AuthProtect
+  , Context (EmptyContext, (:.))
+  , Get
+  , Handler
+  , NamedRoutes
+  , Union
+  , WithStatus
+  , type (:>)
+  )
 import "servant" Servant.API.Generic ((:-))
 import "servant-blaze" Servant.HTML.Blaze (HTML)
 import Servant.OAuth2
 import Servant.OAuth2.Cookies
-import "servant-server" Servant.Server.Experimental.Auth (
-  AuthHandler,
-  AuthServerData,
-  mkAuthHandler,
- )
-import "servant-server" Servant.Server.Generic (
-  AsServerT,
-  genericServeTWithContext,
- )
+import Servant.OAuth2.Hacks
+import "servant-server" Servant.Server.Experimental.Auth
+  ( AuthHandler
+  , AuthServerData
+  , mkAuthHandler
+  )
+import "servant-server" Servant.Server.Generic
+  ( AsServerT
+  , genericServeTWithContext
+  )
 import "shakespeare" Text.Hamlet (Html, shamlet)
 import "tomland" Toml (decodeFileExact)
 import "clientsession" Web.ClientSession (Key, getDefaultKey)
+
 
 
 type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
@@ -93,8 +92,7 @@ server ::
 server OAuthConfig {_callbackUrl} settings =
   Routes
     { home = \user -> do
-        let (Github {githubOAuth2}) = provider settings
-            githubLoginUrl = getRedirectUrl _callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
+        let githubLoginUrl = getGithubLoginUrl _callbackUrl settings
             loggedIn = isJust user
         pure $
           [shamlet|
