@@ -27,12 +27,16 @@ import "uri-bytestring" URI.ByteString qualified as U
 
 
 -- | For some settings specialised to 'Github', return the login url.
+--
+-- @since 0.1.0.0
 getGithubLoginUrl :: Text -> OAuth2Settings Github a  -> Text
 getGithubLoginUrl callbackUrl (provider -> Github { githubOAuth2 })
   = getRedirectUrl callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
 
 
 -- | For some settings specialised to 'Google', return the login url.
+--
+-- @since 0.1.0.0
 getGoogleLoginUrl :: Text -> OAuth2Settings Google a  -> Text
 getGoogleLoginUrl callbackUrl (provider -> Google { googleOAuth2 })
   = getRedirectUrl callbackUrl googleOAuth2 (oa2Scope googleOAuth2)
@@ -40,6 +44,8 @@ getGoogleLoginUrl callbackUrl (provider -> Google { googleOAuth2 })
 
 -- | An extremely unfortunate way of getting the redirect URL; stolen from
 -- 'Network.Wai.Auth.Internal'.
+--
+-- @since 0.1.0.0
 getRedirectUrl :: Text -> Wai.OAuth2 -> Maybe [Text] -> Text
 getRedirectUrl callbackUrl waiOa2 oa2Scope = decodeUtf8 redirectUrl
  where

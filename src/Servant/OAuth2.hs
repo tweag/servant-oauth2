@@ -1,11 +1,17 @@
 {-|
+A modern wrapper around <https://github.com/fpco/wai-middleware-auth/>.
 
-
+This library can be used to add type-level authentication and authorisation
+into a Servant api via OAuth2. You might be interested in this if you are
+using Servant as a light-weight webserver serving 'Html', for example.
 -}
+
 {-# language NamedFieldPuns #-}
 {-# language TypeFamilies   #-}
 
 module Servant.OAuth2 where
+
+
 
 import "base" Control.Monad.IO.Class (MonadIO, liftIO)
 import "bytestring" Data.ByteString (ByteString)
@@ -46,22 +52,28 @@ import "servant-server" Servant.Server.Generic (
 
 
 -- | A simple way to add a type-level tag onto the return type for your
--- 'AuthServerData' instance. Used something like: `Tag Github ...`; this then
+-- 'AuthServerData' instance. Used something like: @'Tag' 'Github' ...@; this then
 -- allows you to use multiple oauth providers on one server, and have servant
 -- still pick out the right auth handler to use. See:
 -- <https://docs.servant.dev/en/stable/tutorial/Authentication.html#recap> for
 -- more detail.
+--
+-- @since 0.1.0.0
 data Tag a (rs :: [Type]) = Tag { unTag :: (Union rs) }
 
 
 -- | This is the result of successful completion of the OAuth2 login workflow;
 -- it is the identifier that comes back from the provider.
+--
+-- @since 0.1.0.0
 type Ident = ByteString
 
 
 -- | This contains the 'complete' route that the given OAuth2 provider will
 -- return to. This implementation for this is fully given by the 'authServer'
 -- function.
+--
+-- @since 0.1.0.0
 data OAuth2Routes (rs :: [Type]) mode = AuthRoutes
   { complete :: mode :- "complete" :> UVerb 'GET '[HTML] rs
   }
@@ -71,6 +83,8 @@ data OAuth2Routes (rs :: [Type]) mode = AuthRoutes
 -- | The server implementation for the 'OAuth2Routes' routes. Ultimately,
 -- this just returns the result of the 'success' function from
 --'OAuth2Settings'.
+--
+-- @since 0.1.0.0
 authServer :: forall m a (rs :: [Type])
    .  Monad m
   => Tag a rs
@@ -86,6 +100,8 @@ authServer h =
 -- results; if there was any error, we throw a servant error, or, in the happy
 -- case that we successfully authenticate, we call the 'success' function and
 -- return, which is then (after unwrapping) returned by the 'authServer'.
+--
+-- @since 0.1.0.0
 oauth2AuthHandler :: forall p rs
    . Wai.AuthProvider p
   => OAuth2Settings p rs
@@ -109,6 +125,8 @@ oauth2AuthHandler settings = mkAuthHandler f
 -- | In the context of Wai, run the 'complete' step of the OAuth2 process. We
 -- return a 'Wai.Response', unfortunately, which we will later interpret into
 -- Servant responses.
+--
+-- @since 0.1.0.0
 runOAuth2 :: (MonadIO m, Wai.AuthProvider p)
   => Request
   -> p
@@ -126,6 +144,8 @@ runOAuth2 request p onSuccess onFailure = do
 -- | Used to record the particular provider you are using, along with the
 -- ultimate return type of the 'complete' route, that will, in the end, need
 -- to agree with the particular implementation of the 'success' function.
+--
+-- @since 0.1.0.0
 data OAuth2Settings p (rs :: [Type]) = OAuth2Settings
   { success :: Ident -> Handler (Union rs)
   , provider :: p
@@ -137,7 +157,9 @@ data OAuth2Settings p (rs :: [Type]) = OAuth2Settings
 -- the email, depending on how your provider is configured.
 --
 -- Note that in order to use this, your instance of 'AuthServerData' must
--- return '\'[WithStatus 200 Text]'.
+-- return @\'['WithStatus' 200 'Text']@.
+--
+-- @since 0.1.0.0
 defaultOAuth2Settings :: p -> OAuth2Settings p '[WithStatus 200 Text]
 defaultOAuth2Settings p =
   OAuth2Settings

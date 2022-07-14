@@ -1,11 +1,10 @@
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# language NamedFieldPuns  #-}
+{-# language QuasiQuotes     #-}
+{-# language TemplateHaskell #-}
+{-# language TypeFamilies    #-}
 
-module Main where
+module Servant.OAuth2.Examples.Cookies where
 
-import Config
 import "base" Data.Maybe (fromJust, isJust)
 import "text" Data.Text (Text)
 import "base" GHC.Generics (Generic)
@@ -28,6 +27,7 @@ import "servant" Servant.API.Generic ((:-))
 import "servant-blaze" Servant.HTML.Blaze (HTML)
 import Servant.OAuth2
 import Servant.OAuth2.Cookies
+import Servant.OAuth2.Examples.Config
 import Servant.OAuth2.Hacks
 import "servant-server" Servant.Server.Experimental.Auth
   ( AuthHandler
@@ -41,7 +41,6 @@ import "servant-server" Servant.Server.Generic
 import "shakespeare" Text.Hamlet (Html, shamlet)
 import "tomland" Toml (decodeFileExact)
 import "clientsession" Web.ClientSession (Key, getDefaultKey)
-
 
 
 type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
@@ -120,5 +119,6 @@ main = do
       context = optionalUserAuthHandler key :. oauth2AuthHandler ghSettings :. EmptyContext
       nat = id
 
+  putStrLn "Waiting for connections!"
   run 8080 $
     genericServeTWithContext nat (server (_githubOAuth config) ghSettings) context

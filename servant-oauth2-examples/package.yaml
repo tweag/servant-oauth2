@@ -1,4 +1,4 @@
-name:                servant-oauth2
+name:                servant-oauth2-examples
 version:             0.1.0.0
 #synopsis:
 #description:
@@ -9,11 +9,14 @@ maintainer:          noon.vandersilk@tweag.io
 copyright:           2022 Tweag
 category:            Web
 extra-source-files:
-- README.md
+  - README.md
+  - example-auth/db.txt
+
 
 ghc-options:
   -W
   -Wall
+
 
 default-extensions:
   - DataKinds
@@ -28,6 +31,7 @@ default-extensions:
   - TypeApplications
   - TypeOperators
 
+
 dependencies:
   - base >= 4.7 && < 5
   - base64-bytestring
@@ -40,6 +44,7 @@ dependencies:
   - mtl
   - servant
   - servant-blaze
+  - servant-oauth2
   - servant-server
   - shakespeare
   - text
@@ -50,24 +55,28 @@ dependencies:
   - wai-middleware-auth
   - warp
 
-# executables:
-#   example-basic:
-#     source-dirs:      example-basic
-#     main:             Main.hs
-#     dependencies:
-#       - servant-oauth2
-
-#   example-cookies:
-#     source-dirs:      example-cookies
-#     main:             Main.hs
-#     dependencies:
-#       - servant-oauth2
-
-#   example-auth:
-#     source-dirs:      example-authorised
-#     main:             Main.hs
-#     dependencies:
-#       - servant-oauth2
 
 library:
   source-dirs: src
+
+
+executables:
+  example-simple:
+    source-dirs:      example-simple
+    main:             Main.hs
+    dependencies:
+      - servant-oauth2-examples
+
+  example-cookies:
+    source-dirs:      example-cookies
+    main:             Main.hs
+    dependencies:
+      - servant-oauth2-examples
+
+  example-auth:
+    source-dirs:      example-auth
+    main:             Main.hs
+    dependencies:
+      - servant-oauth2-examples
+
+
