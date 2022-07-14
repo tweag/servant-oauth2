@@ -73,7 +73,7 @@ data Routes mode = Routes
 
 -- The final connecttion: the settings we pass in need to specify the return
 -- result that should come back.
-mkGithubSettings :: OAuthConfig -> OAuth2Settings Github OAuth2Result
+mkGithubSettings :: OAuthConfig -> OAuth2Settings Handler Github OAuth2Result
 mkGithubSettings c =
   defaultOAuth2Settings $
     mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
@@ -83,7 +83,7 @@ mkGithubSettings c =
 
 -- The final connecttion: the settings we pass in need to specify the return
 -- result that should come back.
-mkGoogleSettings :: OAuthConfig -> OAuth2Settings Google OAuth2Result
+mkGoogleSettings :: OAuthConfig -> OAuth2Settings Handler Google OAuth2Result
 mkGoogleSettings c =
   defaultOAuth2Settings $
     mkGoogleProvider (_id c) (_secret c) emailAllowList Nothing
@@ -93,9 +93,9 @@ mkGoogleSettings c =
 
 server ::
   Text ->
-  OAuth2Settings Github OAuth2Result ->
+  OAuth2Settings Handler Github OAuth2Result ->
   Text ->
-  OAuth2Settings Google OAuth2Result ->
+  OAuth2Settings Handler Google OAuth2Result ->
   Routes (AsServerT Handler)
 server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
   Routes
@@ -127,8 +127,8 @@ main = do
 
   let githubSettings = mkGithubSettings (_githubOAuth config)
       googleSettings = mkGoogleSettings (_googleOAuth config)
-      context =  oauth2AuthHandler githubSettings
-              :. oauth2AuthHandler googleSettings
+      context =  oauth2AuthHandler githubSettings nat
+              :. oauth2AuthHandler googleSettings nat
               :. EmptyContext
       nat = id
 

@@ -46,6 +46,7 @@ library
     , bytestring
     , clientsession
     , cookie
+    , exceptions
     , hoauth2
     , http-types
     , mtl

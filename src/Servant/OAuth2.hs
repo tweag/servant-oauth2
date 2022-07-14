@@ -11,44 +11,43 @@ using Servant as a light-weight webserver serving 'Html', for example.
 
 module Servant.OAuth2 where
 
-
-
+import "exceptions" Control.Monad.Catch (MonadThrow (..))
+import "mtl" Control.Monad.Except (MonadError)
 import "base" Control.Monad.IO.Class (MonadIO, liftIO)
 import "bytestring" Data.ByteString (ByteString)
 import "base" Data.Kind (Type)
 import "text" Data.Text (Text)
 import "text" Data.Text.Encoding (decodeUtf8)
 import "base" GHC.Generics (Generic)
-import "http-types" Network.HTTP.Types (
-  Status (Status),
-  status200,
- )
+import "http-types" Network.HTTP.Types
+  ( Status (Status)
+  , status200
+  )
 import "wai" Network.Wai (Request)
 import "wai" Network.Wai qualified as Wai
 import "wai-middleware-auth" Network.Wai.Middleware.Auth qualified as Wai
 import "wai-middleware-auth" Network.Wai.Middleware.Auth.Provider qualified as Wai
-import "servant-server" Servant (
-  Handler,
-  StdMethod (GET),
-  UVerb,
-  Union,
-  WithStatus (WithStatus),
-  err401,
-  err403,
-  err501,
-  respond,
-  throwError,
-  type (:>),
- )
+import "servant-server" Servant
+  ( Handler
+  , StdMethod (GET)
+  , UVerb
+  , Union
+  , WithStatus (WithStatus)
+  , err401
+  , err403
+  , err501
+  , respond
+  , type (:>)
+  )
 import "servant" Servant.API.Generic ((:-))
 import "servant-blaze" Servant.HTML.Blaze (HTML)
-import "servant-server" Servant.Server.Experimental.Auth (
-  AuthHandler,
-  mkAuthHandler,
- )
-import "servant-server" Servant.Server.Generic (
-  AsServerT,
- )
+import "servant-server" Servant.Server.Experimental.Auth
+  ( AuthHandler
+  , mkAuthHandler
+  )
+import "servant-server" Servant.Server.Generic
+  ( AsServerT
+  )
 
 
 -- | A simple way to add a type-level tag onto the return type for your
@@ -102,23 +101,29 @@ authServer h =
 -- return, which is then (after unwrapping) returned by the 'authServer'.
 --
 -- @since 0.1.0.0
-oauth2AuthHandler :: forall p rs
-   . Wai.AuthProvider p
-  => OAuth2Settings p rs
+oauth2AuthHandler :: forall m p rs e
+   . ( Wai.AuthProvider p
+     , MonadIO m
+     , MonadThrow m
+     , MonadError e m
+     , Monad m
+     )
+  => OAuth2Settings m p rs
+  -> (m (Tag p rs) -> Handler (Tag p rs))
   -> AuthHandler Request (Tag p rs)
-oauth2AuthHandler settings = mkAuthHandler f
+oauth2AuthHandler settings runM = mkAuthHandler $ runM . f
  where
   onSuccess ident = pure $ Wai.responseLBS status200 [("", ident)] ""
   onFailure status reason = pure $ Wai.responseLBS status [("", reason)] ""
-  f :: Request -> Handler (Tag p rs)
+  f :: Request -> m (Tag p rs)
   f req = do
     resp <- runOAuth2 req (provider settings) onSuccess onFailure
     let thing = snd . head $ Wai.responseHeaders resp
     case Wai.responseStatus resp of
-      Status 200 _ -> fmap Tag $ success settings $ thing
-      Status 401 _ -> throwError err401
-      Status 403 _ -> throwError err403
-      Status 501 _ -> throwError err501
+      Status 200 _ -> fmap Tag $ (success settings) req thing
+      Status 401 _ -> throwM err401
+      Status 403 _ -> throwM err403
+      Status 501 _ -> throwM err501
       _ -> error $ "Unknown error: " <> show thing
 
 
@@ -146,8 +151,8 @@ runOAuth2 request p onSuccess onFailure = do
 -- to agree with the particular implementation of the 'success' function.
 --
 -- @since 0.1.0.0
-data OAuth2Settings p (rs :: [Type]) = OAuth2Settings
-  { success :: Ident -> Handler (Union rs)
+data OAuth2Settings m p (rs :: [Type]) = OAuth2Settings
+  { success :: Request -> Ident -> m (Union rs)
   , provider :: p
   }
 
@@ -160,9 +165,12 @@ data OAuth2Settings p (rs :: [Type]) = OAuth2Settings
 -- return @\'['WithStatus' 200 'Text']@.
 --
 -- @since 0.1.0.0
-defaultOAuth2Settings :: p -> OAuth2Settings p '[WithStatus 200 Text]
+defaultOAuth2Settings :: forall m p
+   . Applicative m
+  => p
+  -> OAuth2Settings m p '[WithStatus 200 Text]
 defaultOAuth2Settings p =
   OAuth2Settings
-    { success = respond . WithStatus @200 . decodeUtf8
+    { success = \_ -> respond . WithStatus @200 . decodeUtf8
     , provider = p
     }

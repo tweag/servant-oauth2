@@ -59,7 +59,6 @@ import "servant-server" Servant.Server.Generic
 import "shakespeare" Text.Hamlet (Html, shamlet)
 import "tomland" Toml (decodeFileExact)
 import "clientsession" Web.ClientSession (Key, getDefaultKey)
-import "cookie" Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteStrict)
 
 
 type Db = H.HashMap Text User
@@ -77,9 +76,9 @@ data User = User
 
 data Env (r :: Role) = Env
   { user              :: Maybe User
-  , githubSettings    :: OAuth2Settings Github OAuth2Result
+  , githubSettings    :: OAuth2Settings PageM Github OAuth2Result
   , githubOAuthConfig :: OAuthConfig
-  , googleSettings    :: OAuth2Settings Google OAuth2Result
+  , googleSettings    :: OAuth2Settings PageM Google OAuth2Result
   , googleOAuthConfig :: OAuthConfig
   }
 
@@ -135,18 +134,6 @@ data SiteRoutes mode = SiteRoutes
   , logout :: mode :- "logout" :> UVerb 'GET '[HTML] '[WithStatus 303 RedirectWithCookie]
   }
   deriving stock (Generic)
-
-
-emptyCookie :: SetCookie
-emptyCookie = defaultSetCookie
-  { setCookieName     = ourCookie
-  , setCookieValue    = ""
-  , setCookieMaxAge   = Just 0
-  , setCookiePath     = Just "/"
-  , setCookieSameSite = Just sameSiteStrict
-  , setCookieHttpOnly = True
-  , setCookieSecure   = False
-  }
 
 
 siteServer :: SiteRoutes (AsServerT PageM)
@@ -271,19 +258,19 @@ server =
     }
 
 
-mkGithubSettings :: Key -> OAuthConfig -> OAuth2Settings Github OAuth2Result
+mkGithubSettings :: Key -> OAuthConfig -> OAuth2Settings PageM Github OAuth2Result
 mkGithubSettings key c = settings
  where
-  toSessionId = pure . id
+  toSessionId _ = pure . id
   provider = mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
   settings = simpleCookieOAuth2Settings provider toSessionId key
   emailAllowList = [".*"]
 
 
-mkGoogleSettings :: Key -> OAuthConfig -> OAuth2Settings Google OAuth2Result
+mkGoogleSettings :: Key -> OAuthConfig -> OAuth2Settings PageM Google OAuth2Result
 mkGoogleSettings key c = settings
  where
-  toSessionId = pure . id
+  toSessionId _ = pure . id
   provider = mkGoogleProvider (_id c) (_secret c) emailAllowList Nothing
   settings = simpleCookieOAuth2Settings provider toSessionId key
   emailAllowList = [".*"]
@@ -301,19 +288,19 @@ main = do
   key <- getDefaultKey
   db <- loadDb
 
-  let githubSettings = mkGithubSettings key (_githubOAuth config)
+  let nat :: PageM a -> Handler a
+      nat = flip runReaderT env
+      githubSettings = mkGithubSettings key (_githubOAuth config)
       googleSettings = mkGoogleSettings key (_googleOAuth config)
       env = Env Nothing
               githubSettings (_githubOAuth config)
               googleSettings (_googleOAuth config)
       context
         =  optionalUserAuthHandler db key
-        :. oauth2AuthHandler githubSettings
-        :. oauth2AuthHandler googleSettings
+        :. oauth2AuthHandler githubSettings nat
+        :. oauth2AuthHandler googleSettings nat
         :. EmptyContext
 
-  let nat :: PageM a -> Handler a
-      nat = flip runReaderT env
 
   putStrLn "Waiting for connections!"
   run 8080 $

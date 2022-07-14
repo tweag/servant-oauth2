@@ -1,38 +1,39 @@
+{-# language ExplicitForAll #-}
+
 module Servant.OAuth2.Cookies where
 
-import "base" Control.Monad.IO.Class (liftIO)
+import "base" Control.Monad.IO.Class (MonadIO, liftIO)
 import "binary" Data.Binary qualified as Binary
 import "bytestring" Data.ByteString (ByteString)
 import "base64-bytestring" Data.ByteString.Base64.URL qualified as Base64
 import "bytestring" Data.ByteString.Lazy qualified as BSL
 import "base" Data.List qualified as List
 import "text" Data.Text (Text)
-import "http-types" Network.HTTP.Types (
-  hCookie,
- )
+import "http-types" Network.HTTP.Types
+  ( hCookie
+  )
 import "wai" Network.Wai (Request)
 import "wai" Network.Wai qualified as Wai
-import "servant-server" Servant (
-  Handler,
-  Header,
-  Headers,
-  NoContent (NoContent),
-  WithStatus (WithStatus),
-  addHeader,
-  respond,
- )
+import "servant-server" Servant
+  ( Header
+  , Headers
+  , NoContent (NoContent)
+  , WithStatus (WithStatus)
+  , addHeader
+  , respond
+  )
 import Servant.OAuth2
-import "clientsession" Web.ClientSession (
-  Key,
-  decrypt,
-  encryptIO,
- )
-import "cookie" Web.Cookie (
-  SetCookie (..),
-  defaultSetCookie,
-  parseCookies,
-  sameSiteStrict,
- )
+import "clientsession" Web.ClientSession
+  ( Key
+  , decrypt
+  , encryptIO
+  )
+import "cookie" Web.Cookie
+  ( SetCookie (..)
+  , defaultSetCookie
+  , parseCookies
+  , sameSiteStrict
+  )
 
 
 -- | A helpful alias for returning a 'Location' header and a 'SetCookie'
@@ -50,6 +51,22 @@ ourCookie :: ByteString
 ourCookie = "_servant_oauth2_cookie"
 
 
+-- | An empty cookie; useful to set when logging out.
+--
+-- @since 0.1.0.0
+emptyCookie :: SetCookie
+emptyCookie =
+  defaultSetCookie
+    { setCookieName     = ourCookie
+    , setCookieValue    = ""
+    , setCookieMaxAge   = Just 0
+    , setCookiePath     = Just "/"
+    , setCookieSameSite = Just sameSiteStrict
+    , setCookieHttpOnly = True
+    , setCookieSecure   = False
+    }
+
+
 -- | Set a cookie and then perform a redirection; typically used as part of
 -- logging in; i.e. after successfully performing OAuth2 authentication, we
 -- just want to redirect back to the homepage.
@@ -64,18 +81,19 @@ redirectWithCookie destination cookie =
 -- ident into a sessionId kind of object.
 --
 -- @since 0.1.0.0
-simpleCookieOAuth2Settings :: Binary.Binary s
+simpleCookieOAuth2Settings :: forall s m p
+   . (Binary.Binary s, Applicative m, Monad m, MonadIO m)
   => p
-  -> (Ident -> Handler s)
+  -> (Request -> Ident -> m s)
   -> Key
-  -> OAuth2Settings p '[WithStatus 303 RedirectWithCookie]
+  -> OAuth2Settings m p '[WithStatus 303 RedirectWithCookie]
 simpleCookieOAuth2Settings p toSessionId key =
-  (defaultOAuth2Settings p)
-    { success = \ident -> do
-        sid <- toSessionId ident
-        cookie <- liftIO $ buildSessionCookie key sid
-        respond $ WithStatus @303 (redirectWithCookie "/" cookie)
-    }
+  (defaultOAuth2Settings @m p)
+      { success = \request ident -> do
+          sid <- toSessionId request ident
+          cookie <- liftIO $ buildSessionCookie key sid
+          respond $ WithStatus @303 (redirectWithCookie "/" cookie)
+      }
 
 
 -- | Make a session cookie from the ident; i.e. just set the cookie to be the

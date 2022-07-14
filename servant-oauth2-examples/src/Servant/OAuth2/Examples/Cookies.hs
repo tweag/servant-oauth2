@@ -74,10 +74,10 @@ data Routes mode = Routes
   deriving stock (Generic)
 
 
-mkSettings :: Key -> OAuthConfig -> OAuth2Settings Github OAuth2Result
+mkSettings :: Key -> OAuthConfig -> OAuth2Settings Handler Github OAuth2Result
 mkSettings key c = settings
  where
-  toSessionId = pure . id
+  toSessionId _ = pure . id
   provider = mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
   settings = simpleCookieOAuth2Settings provider toSessionId key
   emailAllowList = [".*"]
@@ -85,7 +85,7 @@ mkSettings key c = settings
 
 server ::
   OAuthConfig ->
-  OAuth2Settings Github OAuth2Result ->
+  OAuth2Settings Handler Github OAuth2Result ->
   Routes (AsServerT Handler)
 server OAuthConfig {_callbackUrl} settings =
   Routes
@@ -115,8 +115,9 @@ main = do
       eitherConfig
 
   key <- getDefaultKey
+
   let ghSettings = mkSettings key (_githubOAuth config)
-      context = optionalUserAuthHandler key :. oauth2AuthHandler ghSettings :. EmptyContext
+      context = optionalUserAuthHandler key :. oauth2AuthHandler ghSettings nat :. EmptyContext
       nat = id
 
   putStrLn "Waiting for connections!"
