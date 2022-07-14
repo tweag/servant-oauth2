@@ -2,7 +2,8 @@ resolver:
   url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/14.yaml
 
 packages:
-- .
+  - .
+  - ./servant-oauth2-examples
 
 extra-deps:
   - selective-0.4.2@sha256:d223434ba4545a09b02dbdc7a4d63bd41ef40cc3d3d82883ccc6daea9d2b2dd5,3507

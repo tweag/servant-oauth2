@@ -1,4 +1,4 @@
-module Config where
+module Servant.OAuth2.Examples.Config where
 
 import "text" Data.Text (Text)
 import "tomland" Toml (TomlCodec, diwrap, table, text, (.=))

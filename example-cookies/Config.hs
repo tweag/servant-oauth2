@@ -1,1 +1,0 @@
-../example-basic/Config.hs

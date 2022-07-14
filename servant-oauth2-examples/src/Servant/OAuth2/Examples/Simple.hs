@@ -1,11 +1,10 @@
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# language NamedFieldPuns  #-}
+{-# language QuasiQuotes     #-}
+{-# language TemplateHaskell #-}
+{-# language TypeFamilies    #-}
 
-module Main where
+module Servant.OAuth2.Examples.Simple where
 
-import Config
 import "text" Data.Text (Text)
 import "base" GHC.Generics (Generic)
 import "warp" Network.Wai.Handler.Warp (run)
@@ -29,6 +28,7 @@ import "servant-server" Servant
 import "servant" Servant.API.Generic ((:-))
 import "servant-blaze" Servant.HTML.Blaze (HTML)
 import Servant.OAuth2
+import Servant.OAuth2.Examples.Config
 import Servant.OAuth2.Hacks
 import "servant-server" Servant.Server.Experimental.Auth
   ( AuthServerData
@@ -41,13 +41,13 @@ import "shakespeare" Text.Hamlet (Html, shamlet)
 import "tomland" Toml (decodeFileExact)
 
 
--- We need to define an instance that corresponds to the result we want to
+-- | We need to define an instance that corresponds to the result we want to
 -- return. We're going with the 'basic' option; so we'll just take the Text
 -- value of the ident that comes back.
 type OAuth2Result = '[WithStatus 200 Text]
 
 
--- This is the instance that connects up the route with the auth handler by
+-- | This is the instance that connects up the route with the auth handler by
 -- way of the return type.
 type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github OAuth2Result
 type instance AuthServerData (AuthProtect "oauth2-google") = Tag Google OAuth2Result
@@ -132,5 +132,6 @@ main = do
               :. EmptyContext
       nat = id
 
+  putStrLn "Waiting for connections!"
   run 8080 $
     genericServeTWithContext nat (server (_callbackUrl (_githubOAuth config)) githubSettings (_callbackUrl (_googleOAuth config)) googleSettings) context

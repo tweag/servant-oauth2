@@ -3,9 +3,9 @@
 {-# language TemplateHaskell #-}
 {-# language TypeFamilies    #-}
 
-module Main where
+module Servant.OAuth2.Examples.Authorisation where
 
-import Config
+import Servant.OAuth2.Examples.Config
 import "mtl" Control.Monad.Reader (ReaderT, ask, runReaderT, withReaderT)
 import "base" Data.Coerce (coerce)
 import "unordered-containers" Data.HashMap.Strict qualified as H
@@ -315,14 +315,16 @@ main = do
   let nat :: PageM a -> Handler a
       nat = flip runReaderT env
 
+  putStrLn "Waiting for connections!"
   run 8080 $
     genericServeTWithContext nat server context
 
 
 loadDb :: IO Db
 loadDb = do
-  ls <- Text.lines <$> Text.readFile "example-authorised/db.txt"
+  ls <- Text.lines <$> Text.readFile "./servant-oauth2-examples/example-auth/db.txt"
   let raw = map (Text.split (==',')) ls
       mkRow [u,r] = (u, User u r)
       mkRow _ = error "Inconsistent database state."
   pure $ H.fromList $ map mkRow raw
+

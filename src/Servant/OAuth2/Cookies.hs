@@ -35,11 +35,17 @@ import "cookie" Web.Cookie (
  )
 
 
--- | A helpful alias.
-type RedirectWithCookie = Headers '[Header "Location" Text, Header "Set-Cookie" SetCookie] NoContent
+-- | A helpful alias for returning a 'Location' header and a 'SetCookie'
+-- header.
+--
+-- @since 0.1.0.0
+type RedirectWithCookie
+  = Headers '[Header "Location" Text, Header "Set-Cookie" SetCookie] NoContent
 
 
 -- | Default name of our cookie.
+--
+-- @since 0.1.0.0
 ourCookie :: ByteString
 ourCookie = "_servant_oauth2_cookie"
 
@@ -47,6 +53,8 @@ ourCookie = "_servant_oauth2_cookie"
 -- | Set a cookie and then perform a redirection; typically used as part of
 -- logging in; i.e. after successfully performing OAuth2 authentication, we
 -- just want to redirect back to the homepage.
+--
+-- @since 0.1.0.0
 redirectWithCookie :: Text -> SetCookie -> RedirectWithCookie
 redirectWithCookie destination cookie =
   addHeader destination (addHeader cookie NoContent)
@@ -54,6 +62,8 @@ redirectWithCookie destination cookie =
 
 -- | Build a simple cookie provided you have a function that can convert the
 -- ident into a sessionId kind of object.
+--
+-- @since 0.1.0.0
 simpleCookieOAuth2Settings :: Binary.Binary s
   => p
   -> (Ident -> Handler s)
@@ -70,6 +80,8 @@ simpleCookieOAuth2Settings p toSessionId key =
 
 -- | Make a session cookie from the ident; i.e. just set the cookie to be the
 -- ident value.
+--
+-- @since 0.1.0.0
 buildSessionCookie :: Binary.Binary s => Key -> s -> IO SetCookie
 buildSessionCookie key sid = do
   encrypted <- encryptIO key $ BSL.toStrict $ Binary.encode $ sid
@@ -89,6 +101,8 @@ buildSessionCookie key sid = do
 
 -- | Perform the decryption of the cookie in reverse order to
 -- 'buildSessionCookie'.
+--
+-- @since 0.1.0.0
 getSessionIdFromCookie :: Binary.Binary s => Request -> Key -> Maybe s
 getSessionIdFromCookie request key = maybeSessionId
  where
