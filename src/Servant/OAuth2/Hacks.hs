@@ -29,7 +29,7 @@ import "uri-bytestring" URI.ByteString qualified as U
 -- | For some settings specialised to 'Github', return the login url.
 --
 -- @since 0.1.0.0
-getGithubLoginUrl :: Text -> OAuth2Settings Github a  -> Text
+getGithubLoginUrl :: Text -> OAuth2Settings m Github a  -> Text
 getGithubLoginUrl callbackUrl (provider -> Github { githubOAuth2 })
   = getRedirectUrl callbackUrl githubOAuth2 (oa2Scope githubOAuth2)
 
@@ -37,7 +37,7 @@ getGithubLoginUrl callbackUrl (provider -> Github { githubOAuth2 })
 -- | For some settings specialised to 'Google', return the login url.
 --
 -- @since 0.1.0.0
-getGoogleLoginUrl :: Text -> OAuth2Settings Google a  -> Text
+getGoogleLoginUrl :: Text -> OAuth2Settings m Google a  -> Text
 getGoogleLoginUrl callbackUrl (provider -> Google { googleOAuth2 })
   = getRedirectUrl callbackUrl googleOAuth2 (oa2Scope googleOAuth2)
 
