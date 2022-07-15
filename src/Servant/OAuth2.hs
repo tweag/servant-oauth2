@@ -139,8 +139,8 @@ runOAuth2 :: (MonadIO m, Wai.AuthProvider p)
   -> (Status -> ByteString -> IO Wai.Response)
   -> m Wai.Response
 runOAuth2 request p onSuccess onFailure = do
-  let appRoot = Wai.smartAppRoot request
-      suffix = ["complete"]
+  let appRoot  = Wai.smartAppRoot request
+      suffix   = ["complete"]
       provider = Wai.Provider p
       providerUrl (Wai.ProviderUrl url) = Wai.mkRouteRender (Just appRoot) "auth" url provider
   liftIO $ Wai.handleLogin provider request suffix providerUrl onSuccess onFailure
@@ -152,7 +152,7 @@ runOAuth2 request p onSuccess onFailure = do
 --
 -- @since 0.1.0.0
 data OAuth2Settings m p (rs :: [Type]) = OAuth2Settings
-  { success :: Request -> Ident -> m (Union rs)
+  { success  :: Request -> Ident -> m (Union rs)
   , provider :: p
   }
 
@@ -171,6 +171,6 @@ defaultOAuth2Settings :: forall m p
   -> OAuth2Settings m p '[WithStatus 200 Text]
 defaultOAuth2Settings p =
   OAuth2Settings
-    { success = \_ -> respond . WithStatus @200 . decodeUtf8
+    { success  = \_ -> respond . WithStatus @200 . decodeUtf8
     , provider = p
     }
