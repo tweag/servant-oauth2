@@ -25,7 +25,8 @@ Example that performs "authorisation" (i.e. there is an 'admin' section):
 
 #### Before running
 
-You'll need to make a GitHub OAuth application.
+You'll need to make a GitHub OAuth application, and a Google one, if you want
+to test that as well.
 
 The details of which you'll need to place in `./config.toml`. See
 `./config.example.toml` for an example.
