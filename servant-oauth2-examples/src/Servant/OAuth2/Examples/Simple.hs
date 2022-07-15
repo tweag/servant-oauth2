@@ -10,7 +10,7 @@ library.
 We don't do anything with the result of successful authentication other than
 return the ident that was provided to us. In an "real" example, you'll want to
 set a cookie. For that, you can take a look at
-'Servant.OAuth2.Examples.Cookies'.
+"Servant.OAuth2.Examples.Cookies".
 
 This file serves as a complete example; and you can read through this
 documentation from top to bottom, in order to work out what each component is.
@@ -107,7 +107,7 @@ data Routes mode = Routes
 -- that it knows which provider it is working with. We also need to tag it
 -- with a 'Handler'-like monad that can interpret errors; in the simple case
 -- this is just the 'Handler' type itself, but in later examples (in
--- particular the 'Servant.OAuth2.Examples.Authorisation' example) it will be
+-- particular the "Servant.OAuth2.Examples.Authorisation" example) it will be
 -- a custom monad.
 mkGithubSettings :: OAuthConfig -> OAuth2Settings Handler Github OAuth2Result
 mkGithubSettings c =
