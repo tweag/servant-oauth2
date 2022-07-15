@@ -60,12 +60,16 @@ import "clientsession" Web.ClientSession (Key, getDefaultKey)
 -- | This time our result type is a set of headers that both redirects, and
 -- sets a particular cookie value. The cookie will, here, contain simply the
 -- result of the oauth2 workflow; i.e. the users email.
+--
+-- @since 0.1.0.0
 type OAuth2Result = '[WithStatus 303 RedirectWithCookie]
 
 
 -- | Our instance here is exactly the same (in fact, it will _always_ be the
 -- same!); it just connects the 'Github' type and the 'OAuth2Result' type, so
 -- it can be picked out by the right version of 'oauth2AuthHandler'.
+--
+-- @since 0.1.0.0
 type instance AuthServerData (AuthProtect Github) = Tag Github OAuth2Result
 
 
@@ -76,6 +80,8 @@ type instance AuthServerData (AuthProtect Github) = Tag Github OAuth2Result
 -- @User@ value, but here, we're not concerning ourselves with that detail, so
 -- we will just return a 'Maybe Text'; i.e. either 'Nothing', if we couldn't
 -- decode a user from the cookie, or the ident of the user if we could.
+--
+-- @since 0.1.0.0
 type instance AuthServerData (AuthProtect "optional-cookie") = Maybe Text
 
 
@@ -85,6 +91,8 @@ type instance AuthServerData (AuthProtect "optional-cookie") = Maybe Text
 -- previously-encoded value from the cookie, by the corresponding function
 -- 'buildSessionCookie', which we will later use through the
 -- 'simpleCookieOAuth2Settings' function.
+--
+-- @since 0.1.0.0
 optionalUserAuthHandler :: Key -> AuthHandler Request (Maybe Text)
 optionalUserAuthHandler key = mkAuthHandler f
  where
@@ -97,6 +105,8 @@ optionalUserAuthHandler key = mkAuthHandler f
 -- | As last time, we have our routes; the main change is the inclusion of the
 -- 'AuthProtect' tag on the 'home' route, that let's us bring a potential user
 -- into scope for that page.
+--
+-- @since 0.1.0.0
 data Routes mode = Routes
   { home :: mode :- AuthProtect "optional-cookie" :> Get '[HTML] Html
   , auth ::
@@ -114,6 +124,8 @@ data Routes mode = Routes
 -- to get default behaviour that, upon successful completion of the oauth2
 -- flow, builds a cookie with a /session id/ &mdash; in this case just the
 -- ident of the user &mdash; and then redirects the browser to the homepage.
+--
+-- @since 0.1.0.0
 mkSettings :: Key -> OAuthConfig -> OAuth2Settings Handler Github OAuth2Result
 mkSettings key c = settings
  where
@@ -127,6 +139,8 @@ mkSettings key c = settings
 -- check if the user us logged in by looking at the first parameter to the
 -- 'home' function; i.e. if it's 'Nothing' then we're not logged in, otherwise
 -- we are! Very convenient.
+--
+-- @since 0.1.0.0
 server :: OAuthConfig
        -> OAuth2Settings Handler Github OAuth2Result
        -> Routes (AsServerT Handler)
@@ -152,6 +166,8 @@ server OAuthConfig {_callbackUrl} settings =
 -- to do our cookie encryption/decryption; and we again need to build up our
 -- context with our 'Github'-based 'oauth2AuthHandler' and our own custom one,
 -- 'optionalUserAuthHandler', to decode the cookie.
+--
+-- @since 0.1.0.0
 main :: IO ()
 main = do
   eitherConfig <- decodeFileExact configCodec ("./config.toml")

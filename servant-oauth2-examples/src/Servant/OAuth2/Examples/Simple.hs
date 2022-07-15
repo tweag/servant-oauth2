@@ -59,6 +59,8 @@ import "tomland" Toml (decodeFileExact)
 -- Text value of the ident that comes back. Note that this is a _list_ of
 -- potential return kinds; the reason it's set up this way is only so we can
 -- explicitly say we'd like to return a 303 Redirect, when using cookies.
+--
+-- @since 0.1.0.0
 type OAuth2Result = '[WithStatus 200 Text]
 
 
@@ -67,10 +69,14 @@ type OAuth2Result = '[WithStatus 200 Text]
 -- respective tagged routes by by this particular 'AuthProtect' instance,
 -- namely, the 'authGithub' and 'authGoogle' routes we will define in a
 -- moment.
+--
+-- @since 0.1.0.0
 type instance AuthServerData (AuthProtect Github) = Tag Github OAuth2Result
 
 
 -- | Same as above, but for google.
+--
+-- @since 0.1.0.0
 type instance AuthServerData (AuthProtect Google) = Tag Google OAuth2Result
 
 
@@ -85,6 +91,8 @@ type instance AuthServerData (AuthProtect Google) = Tag Google OAuth2Result
 -- The 'authGoogle' and 'authGithub' routes will not be implemented by us;
 -- they are both provided by a 'NamedRoutes (OAuth2Routes OAuth2Result)'
 -- value; i.e. the routes themselves come from 'Servant.OAuth2'.
+--
+-- @since 0.1.0.0
 data Routes mode = Routes
   { home :: mode :- Get '[HTML] Html
   , authGithub ::
@@ -109,6 +117,8 @@ data Routes mode = Routes
 -- this is just the 'Handler' type itself, but in later examples (in
 -- particular the "Servant.OAuth2.Examples.Authorisation" example) it will be
 -- a custom monad.
+--
+-- @since 0.1.0.0
 mkGithubSettings :: OAuthConfig -> OAuth2Settings Handler Github OAuth2Result
 mkGithubSettings c =
   defaultOAuth2Settings $
@@ -118,6 +128,8 @@ mkGithubSettings c =
 
 
 -- | Exactly the same as 'mkGithubSettings' but for the 'Google' provider.
+--
+-- @since 0.1.0.0
 mkGoogleSettings :: OAuthConfig -> OAuth2Settings Handler Google OAuth2Result
 mkGoogleSettings c =
   defaultOAuth2Settings $
@@ -131,6 +143,8 @@ mkGoogleSettings c =
 -- together. There's a bit of noise in passing all the relevant configs in,
 -- but this would go away in a "real" application, by passing that around in
 -- an env, or otherwise.
+--
+-- @since 0.1.0.0
 server ::
   Text ->
   OAuth2Settings Handler Github OAuth2Result ->
@@ -158,6 +172,8 @@ server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
 
 -- | Entrypoint. The most important thing we do here is build our list of
 -- contexts by calling 'oauth2AuthHandler' with the respective settings.
+--
+-- @since 0.1.0.0
 main :: IO ()
 main = do
   eitherConfig <- decodeFileExact configCodec ("./config.toml")
