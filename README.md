@@ -40,9 +40,9 @@ http://localhost:8080/auth/github/complete
 
 #### Todo
 
-- [ ] More detailed readme documentation
 - [ ] Contributing guide
 - [x] Document exported functions
+- [x] More detailed readme documentation
 - [x] Build in an example of 'Authorisation'; i.e. lifting the logins to the type-level
 - [x] Show an example of multiple auths (distinguish by type)
 - [x] See if we can get away with only doing it for `complete`
