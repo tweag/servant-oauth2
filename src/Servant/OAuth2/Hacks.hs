@@ -4,8 +4,8 @@ A collection of hacky functions needed to work around the fact that
 want something that is defined for Servant.
 -}
 {-# language NamedFieldPuns #-}
-{-# language ViewPatterns   #-}
 {-# language TupleSections  #-}
+{-# language ViewPatterns   #-}
 
 module Servant.OAuth2.Hacks where
 
