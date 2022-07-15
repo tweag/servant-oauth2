@@ -2,6 +2,19 @@
 {-# language QuasiQuotes     #-}
 {-# language TemplateHaskell #-}
 {-# language TypeFamilies    #-}
+{-|
+
+This is the simplest example of a full application that makes use of this
+library.
+
+We don't do anything with the result of successful authentication other than
+return the ident that was provided to us. In an "real" example, you'll want to
+set a cookie. For that, you can take a look at
+'Servant.OAuth2.Examples.Cookies'.
+
+This file serves as a complete example; and you can read through this
+documentation from top to bottom, in order to work out what each component is.
+-}
 
 module Servant.OAuth2.Examples.Simple where
 
@@ -41,29 +54,48 @@ import "shakespeare" Text.Hamlet (Html, shamlet)
 import "tomland" Toml (decodeFileExact)
 
 
--- | We need to define an instance that corresponds to the result we want to
--- return. We're going with the 'basic' option; so we'll just take the Text
--- value of the ident that comes back.
+-- | First, we need to define an instance that corresponds to the result we
+-- want to return. We're going with the 'basic' option; so we'll just take the
+-- Text value of the ident that comes back. Note that this is a _list_ of
+-- potential return kinds; the reason it's set up this way is only so we can
+-- explicitly say we'd like to return a 303 Redirect, when using cookies.
 type OAuth2Result = '[WithStatus 200 Text]
 
 
--- | This is the instance that connects up the route with the auth handler by
--- way of the return type.
-type instance AuthServerData (AuthProtect "oauth2-github") = Tag Github OAuth2Result
-type instance AuthServerData (AuthProtect "oauth2-google") = Tag Google OAuth2Result
+-- | Next up, we follow the approach of the generalised servant authentication
+-- to connect up our (future usage of) the 'oauth2AuthHandler' to the
+-- respective tagged routes by by this particular 'AuthProtect' instance,
+-- namely, the 'authGithub' and 'authGoogle' routes we will define in a
+-- moment.
+type instance AuthServerData (AuthProtect Github) = Tag Github OAuth2Result
 
 
+-- | Same as above, but for google.
+type instance AuthServerData (AuthProtect Google) = Tag Google OAuth2Result
+
+
+-- | Here we just define a very simple website, something like:
+--
+-- @
+--  \/
+--  \/auth\/github\/...
+--  \/auth\/google\/...
+-- @
+--
+-- The 'authGoogle' and 'authGithub' routes will not be implemented by us;
+-- they are both provided by a 'NamedRoutes (OAuth2Routes OAuth2Result)'
+-- value; i.e. the routes themselves come from 'Servant.OAuth2'.
 data Routes mode = Routes
   { home :: mode :- Get '[HTML] Html
   , authGithub ::
       mode
-        :- AuthProtect "oauth2-github"
+        :- AuthProtect Github
           :> "auth"
           :> "github"
           :> NamedRoutes (OAuth2Routes OAuth2Result)
   , authGoogle ::
       mode
-        :- AuthProtect "oauth2-google"
+        :- AuthProtect Google
           :> "auth"
           :> "google"
           :> NamedRoutes (OAuth2Routes OAuth2Result)
@@ -71,8 +103,12 @@ data Routes mode = Routes
   deriving stock (Generic)
 
 
--- The final connecttion: the settings we pass in need to specify the return
--- result that should come back.
+-- | We need to build an 'OAuth2Settings' to pass to 'oauth2AuthHandler', so
+-- that it knows which provider it is working with. We also need to tag it
+-- with a 'Handler'-like monad that can interpret errors; in the simple case
+-- this is just the 'Handler' type itself, but in later examples (in
+-- particular the 'Servant.OAuth2.Examples.Authorisation' example) it will be
+-- a custom monad.
 mkGithubSettings :: OAuthConfig -> OAuth2Settings Handler Github OAuth2Result
 mkGithubSettings c =
   defaultOAuth2Settings $
@@ -81,8 +117,7 @@ mkGithubSettings c =
   emailAllowList = [".*"]
 
 
--- The final connecttion: the settings we pass in need to specify the return
--- result that should come back.
+-- | Exactly the same as 'mkGithubSettings' but for the 'Google' provider.
 mkGoogleSettings :: OAuthConfig -> OAuth2Settings Handler Google OAuth2Result
 mkGoogleSettings c =
   defaultOAuth2Settings $
@@ -91,6 +126,11 @@ mkGoogleSettings c =
   emailAllowList = [".*"]
 
 
+-- | Here we pull implement a very simple homepage, basically just showing the
+-- links to login, and connecting the two 'authGithub' and 'authGoogle' routes
+-- together. There's a bit of noise in passing all the relevant configs in,
+-- but this would go away in a "real" application, by passing that around in
+-- an env, or otherwise.
 server ::
   Text ->
   OAuth2Settings Handler Github OAuth2Result ->
@@ -107,15 +147,17 @@ server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
           [shamlet|
             <h3> Home - Basic Example
             <p>
-                <a href="#{githubLoginUrl}"> Github Login
-                <br>
-                <a href="#{googleLoginUrl}"> Google Login
+              <a href="#{githubLoginUrl}"> Github Login
+            <p>
+              <a href="#{googleLoginUrl}"> Google Login
           |]
     , authGithub = authServer
     , authGoogle = authServer
     }
 
 
+-- | Entrypoint. The most important thing we do here is build our list of
+-- contexts by calling 'oauth2AuthHandler' with the respective settings.
 main :: IO ()
 main = do
   eitherConfig <- decodeFileExact configCodec ("./config.toml")
@@ -131,7 +173,10 @@ main = do
               :. oauth2AuthHandler googleSettings nat
               :. EmptyContext
       nat = id
+      server' = server (_callbackUrl (_githubOAuth config))
+                       githubSettings
+                       (_callbackUrl (_googleOAuth config))
+                       googleSettings
 
   putStrLn "Waiting for connections!"
-  run 8080 $
-    genericServeTWithContext nat (server (_callbackUrl (_githubOAuth config)) githubSettings (_callbackUrl (_googleOAuth config)) googleSettings) context
+  run 8080 $ genericServeTWithContext nat server' context
