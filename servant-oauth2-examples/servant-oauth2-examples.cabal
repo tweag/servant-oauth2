@@ -5,9 +5,9 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           servant-oauth2-examples
-version:        0.1.0.0
+version:        0.1.0.1
 synopsis:       Example applications using this library in three ways.
-description:    Three examples of using this library, either just to demonstrate the end-to-end connection ("Simple"), with cookies ("Cookies") or with type-level authorisation ("Authorised").
+description:    Three examples of using this library, either just to demonstrate the end-to-end connection "Servant.OAuth2.Examples.Simple", with cookies "Servant.OAuth2.Examples.Cookies" or with type-level authorisation "Servant.OAuth2.Examples.Authorised".
 category:       Web
 homepage:       https://github.com/tweag/servant-oauth2#readme
 author:         Tweag
