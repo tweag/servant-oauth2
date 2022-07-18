@@ -1,15 +1,23 @@
 name:                servant-oauth2
 version:             0.1.0.0
-#synopsis:
-#description:
+synopsis:            A library for OAuth2 authentication in servant.
+description:
+  A library for OAuth2 authentication in servant.
+
+  It is a modern wrapper around wai-middleware-auth, and provides the ability
+  to build type-safe authorised APIs with authentication provided by the wai
+  oauth2 backends.
+
 homepage:            https://github.com/tweag/servant-oauth2#readme
-license:             BSD3
+license:             OtherLicense
+license-file:        LICENSE
 author:              Tweag
 maintainer:          noon.vandersilk@tweag.io
 copyright:           2022 Tweag
 category:            Web
 extra-source-files:
-- README.md
+  - README.md
+  - LICENSE
 
 ghc-options:
   -W
@@ -50,25 +58,6 @@ dependencies:
   - wai
   - wai-middleware-auth
   - warp
-
-# executables:
-#   example-basic:
-#     source-dirs:      example-basic
-#     main:             Main.hs
-#     dependencies:
-#       - servant-oauth2
-
-#   example-cookies:
-#     source-dirs:      example-cookies
-#     main:             Main.hs
-#     dependencies:
-#       - servant-oauth2
-
-#   example-auth:
-#     source-dirs:      example-authorised
-#     main:             Main.hs
-#     dependencies:
-#       - servant-oauth2
 
 library:
   source-dirs: src

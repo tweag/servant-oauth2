@@ -6,16 +6,20 @@ cabal-version: 1.12
 
 name:           servant-oauth2
 version:        0.1.0.0
+synopsis:       A library for OAuth2 authentication in servant.
+description:    A library for OAuth2 authentication in servant.
+                It is a modern wrapper around wai-middleware-auth, and provides the ability to build type-safe authorised APIs with authentication provided by the wai oauth2 backends.
 category:       Web
 homepage:       https://github.com/tweag/servant-oauth2#readme
 author:         Tweag
 maintainer:     noon.vandersilk@tweag.io
 copyright:      2022 Tweag
-license:        BSD3
+license:        OtherLicense
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
+    LICENSE
 
 library
   exposed-modules:
