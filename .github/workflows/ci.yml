@@ -1,0 +1,66 @@
+# Copied and edited from:
+#
+# Haskell stack project Github Actions template
+# https://gist.github.com/mstksg/11f753d891cee5980326a8ea8c865233
+
+name: CI
+
+on:
+  workflow_call:
+  pull_request:
+  push:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # use this to specify what resolvers and ghc to use
+        plan:
+        - { resolver: "--resolver lts-19.14"  }    # ghc-9.0.2
+        # - { resolver: "--resolver nightly" }
+        # - { resolver: ""                   }
+        # use this to include any dependencies from OS package managers
+        include: []
+        # - os: ubuntu-latest
+        #   apt-get: happy libblas-dev liblapack-dev
+
+    runs-on: ${{ matrix.os }}
+    steps:
+
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.stack
+          .stack-work
+        # best effort for cache: tie it to Stack resolver and package config
+        key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml.lock', 'package.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-stack
+
+    - name: ACTIONS_ALLOW_UNSECURE_COMMANDS
+      id: ACTIONS_ALLOW_UNSECURE_COMMANDS
+      run: echo 'ACTIONS_ALLOW_UNSECURE_COMMANDS=true' >> $GITHUB_ENV
+
+    - name: Install OS Packages
+      uses: mstksg/get-package@v1
+    - uses: actions/checkout@v1
+
+    - name: Setup stack
+      uses: mstksg/setup-stack@v1
+
+    - name: Install dependencies
+      run: |
+        set -ex
+        stack --no-terminal --install-ghc $ARGS test --bench --only-dependencies
+        set +ex
+      env:
+        ARGS: ${{ matrix.plan.resolver }}
+
+    - name: Build
+      run: |
+        set -ex
+        stack --no-terminal $ARGS test --bench --no-run-benchmarks --haddock --no-haddock-deps
+        set +ex
+      env:
+        ARGS: ${{ matrix.plan.resolver }}
