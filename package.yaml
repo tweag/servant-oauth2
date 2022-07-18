@@ -1,5 +1,5 @@
 name:                servant-oauth2
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis:            A library for OAuth2 authentication in servant.
 description:
   A library for OAuth2 authentication in servant.
