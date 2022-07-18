@@ -7,18 +7,18 @@ provider implementations.
 
 #### Hacking
 
-Simplest example:
+[Simplest example](./servant-oauth2-examples/src/Servant/OAuth2/Examples/Simple.hs):
 
 ```
 ./hack example-basic
 ```
 
-Cookie example:
+[Cookie example](./servant-oauth2-examples/src/Servant/OAuth2/Examples/Cookies.hs):
 ```
 ./hack example-cookies
 ```
 
-Example that performs "authorisation" (i.e. there is an 'admin' section):
+[Example that performs "authorisation"](./servant-oauth2-examples/src/Servant/OAuth2/Examples/Authorisation.hs) (i.e. there is an 'admin' section):
 ```
 ./hack example-auth
 ```
