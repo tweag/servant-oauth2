@@ -28,13 +28,13 @@ packages:
 - completed:
     name: wai-middleware-auth
     version: 0.2.6.0
-    git: git@github.com:silky/wai-middleware-auth.git
+    git: https://github.com/silky/wai-middleware-auth.git
     pantry-tree:
       size: 2260
       sha256: 2a4ede285c604ef3a38d5493756f3e2749c903b4da30456939a12489a187faab
     commit: 0fd52ef057eed2607de622329dff234c1898fc2b
   original:
-    git: git@github.com:silky/wai-middleware-auth.git
+    git: https://github.com/silky/wai-middleware-auth.git
     commit: 0fd52ef057eed2607de622329dff234c1898fc2b
 snapshots:
 - completed:
