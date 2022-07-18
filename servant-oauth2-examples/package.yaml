@@ -1,9 +1,14 @@
 name:                servant-oauth2-examples
 version:             0.1.0.0
-#synopsis:
-#description:
+synopsis:            Example applications using this library in three ways.
+description:
+  Three examples of using this library, either just to demonstrate the
+  end-to-end connection ("Simple"), with cookies ("Cookies") or with
+  type-level authorisation ("Authorised").
+
 homepage:            https://github.com/tweag/servant-oauth2#readme
-license:             BSD3
+license:             OtherLicense
+license-file:        LICENSE
 author:              Tweag
 maintainer:          noon.vandersilk@tweag.io
 copyright:           2022 Tweag
@@ -11,6 +16,7 @@ category:            Web
 extra-source-files:
   - README.md
   - example-auth/db.txt
+  - LICENSE
 
 
 ghc-options:

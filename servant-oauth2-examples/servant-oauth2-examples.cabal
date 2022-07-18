@@ -6,16 +6,20 @@ cabal-version: 1.12
 
 name:           servant-oauth2-examples
 version:        0.1.0.0
+synopsis:       Example applications using this library in three ways.
+description:    Three examples of using this library, either just to demonstrate the end-to-end connection ("Simple"), with cookies ("Cookies") or with type-level authorisation ("Authorised").
 category:       Web
 homepage:       https://github.com/tweag/servant-oauth2#readme
 author:         Tweag
 maintainer:     noon.vandersilk@tweag.io
 copyright:      2022 Tweag
-license:        BSD3
+license:        OtherLicense
+license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
     example-auth/db.txt
+    LICENSE
 
 library
   exposed-modules:
