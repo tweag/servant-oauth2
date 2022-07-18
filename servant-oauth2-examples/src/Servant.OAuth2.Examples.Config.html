@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Servant.OAuth2.Examples.Config</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;text&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;tomland&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Toml</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">TomlCodec</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">diwrap</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">table</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-operator">(.=)</span></span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">data</span><span> </span><span id="OAuthConfig"><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#OAuthConfig"><span class="hs-identifier hs-var">OAuthConfig</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="OAuthConfig"><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#OAuthConfig"><span class="hs-identifier hs-var">OAuthConfig</span></a></span></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="_name"><span class="annot"><span class="annottext">OAuthConfig -&gt; Text
+</span><a href="Servant.OAuth2.Examples.Config.html#_name"><span class="hs-identifier hs-var hs-var">_name</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_id"><span class="annot"><span class="annottext">OAuthConfig -&gt; Text
+</span><a href="Servant.OAuth2.Examples.Config.html#_id"><span class="hs-identifier hs-var hs-var">_id</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_secret"><span class="annot"><span class="annottext">OAuthConfig -&gt; Text
+</span><a href="Servant.OAuth2.Examples.Config.html#_secret"><span class="hs-identifier hs-var hs-var">_secret</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_callbackUrl"><span class="annot"><span class="annottext">OAuthConfig -&gt; Text
+</span><a href="Servant.OAuth2.Examples.Config.html#_callbackUrl"><span class="hs-identifier hs-var hs-var">_callbackUrl</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#oauthConfigCodec"><span class="hs-identifier hs-type">oauthConfigCodec</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TomlCodec</span></span><span> </span><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#OAuthConfig"><span class="hs-identifier hs-type">OAuthConfig</span></a></span><span>
+</span><span id="line-16"></span><span id="oauthConfigCodec"><span class="annot"><span class="annottext">oauthConfigCodec :: TomlCodec OAuthConfig
+</span><a href="Servant.OAuth2.Examples.Config.html#oauthConfigCodec"><span class="hs-identifier hs-var hs-var">oauthConfigCodec</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-17"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text -&gt; Text -&gt; OAuthConfig
+</span><a href="Servant.OAuth2.Examples.Config.html#OAuthConfig"><span class="hs-identifier hs-var">OAuthConfig</span></a></span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><span class="annottext">(Text -&gt; Text -&gt; Text -&gt; Text -&gt; OAuthConfig)
+-&gt; Codec OAuthConfig Text
+-&gt; Codec OAuthConfig (Text -&gt; Text -&gt; Text -&gt; OAuthConfig)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec Text -&gt; TomlCodec Text
+forall b a. Coercible a b =&gt; TomlCodec a -&gt; TomlCodec b
+</span><span class="hs-identifier hs-var">diwrap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Key -&gt; TomlCodec Text
+</span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;name&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TomlCodec Text -&gt; (OAuthConfig -&gt; Text) -&gt; Codec OAuthConfig Text
+forall field a object.
+Codec field a -&gt; (object -&gt; field) -&gt; Codec object a
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">OAuthConfig -&gt; Text
+</span><a href="Servant.OAuth2.Examples.Config.html#_name"><span class="hs-identifier hs-var hs-var">_name</span></a></span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><span class="annottext">Codec OAuthConfig (Text -&gt; Text -&gt; Text -&gt; OAuthConfig)
+-&gt; Codec OAuthConfig Text
+-&gt; Codec OAuthConfig (Text -&gt; Text -&gt; OAuthConfig)
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec Text -&gt; TomlCodec Text
+forall b a. Coercible a b =&gt; TomlCodec a -&gt; TomlCodec b
+</span><span class="hs-identifier hs-var">diwrap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Key -&gt; TomlCodec Text
+</span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;id&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TomlCodec Text -&gt; (OAuthConfig -&gt; Text) -&gt; Codec OAuthConfig Text
+forall field a object.
+Codec field a -&gt; (object -&gt; field) -&gt; Codec object a
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">OAuthConfig -&gt; Text
+</span><a href="Servant.OAuth2.Examples.Config.html#_id"><span class="hs-identifier hs-var hs-var">_id</span></a></span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><span class="annottext">Codec OAuthConfig (Text -&gt; Text -&gt; OAuthConfig)
+-&gt; Codec OAuthConfig Text
+-&gt; Codec OAuthConfig (Text -&gt; OAuthConfig)
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec Text -&gt; TomlCodec Text
+forall b a. Coercible a b =&gt; TomlCodec a -&gt; TomlCodec b
+</span><span class="hs-identifier hs-var">diwrap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Key -&gt; TomlCodec Text
+</span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;secret&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TomlCodec Text -&gt; (OAuthConfig -&gt; Text) -&gt; Codec OAuthConfig Text
+forall field a object.
+Codec field a -&gt; (object -&gt; field) -&gt; Codec object a
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">OAuthConfig -&gt; Text
+</span><a href="Servant.OAuth2.Examples.Config.html#_secret"><span class="hs-identifier hs-var hs-var">_secret</span></a></span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><span class="annottext">Codec OAuthConfig (Text -&gt; OAuthConfig)
+-&gt; Codec OAuthConfig Text -&gt; TomlCodec OAuthConfig
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec Text -&gt; TomlCodec Text
+forall b a. Coercible a b =&gt; TomlCodec a -&gt; TomlCodec b
+</span><span class="hs-identifier hs-var">diwrap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Key -&gt; TomlCodec Text
+</span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;callback_url&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TomlCodec Text -&gt; (OAuthConfig -&gt; Text) -&gt; Codec OAuthConfig Text
+forall field a object.
+Codec field a -&gt; (object -&gt; field) -&gt; Codec object a
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">OAuthConfig -&gt; Text
+</span><a href="Servant.OAuth2.Examples.Config.html#_callbackUrl"><span class="hs-identifier hs-var hs-var">_callbackUrl</span></a></span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">data</span><span> </span><span id="Config"><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#Config"><span class="hs-identifier hs-var">Config</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Config"><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#Config"><span class="hs-identifier hs-var">Config</span></a></span></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="_githubOAuth"><span class="annot"><span class="annottext">Config -&gt; OAuthConfig
+</span><a href="Servant.OAuth2.Examples.Config.html#_githubOAuth"><span class="hs-identifier hs-var hs-var">_githubOAuth</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#OAuthConfig"><span class="hs-identifier hs-type">OAuthConfig</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_googleOAuth"><span class="annot"><span class="annottext">Config -&gt; OAuthConfig
+</span><a href="Servant.OAuth2.Examples.Config.html#_googleOAuth"><span class="hs-identifier hs-var hs-var">_googleOAuth</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#OAuthConfig"><span class="hs-identifier hs-type">OAuthConfig</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#configCodec"><span class="hs-identifier hs-type">configCodec</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TomlCodec</span></span><span> </span><span class="annot"><a href="Servant.OAuth2.Examples.Config.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span>
+</span><span id="line-31"></span><span id="configCodec"><span class="annot"><span class="annottext">configCodec :: TomlCodec Config
+</span><a href="Servant.OAuth2.Examples.Config.html#configCodec"><span class="hs-identifier hs-var hs-var">configCodec</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-32"></span><span>  </span><span class="annot"><span class="annottext">OAuthConfig -&gt; OAuthConfig -&gt; Config
+</span><a href="Servant.OAuth2.Examples.Config.html#Config"><span class="hs-identifier hs-var">Config</span></a></span><span>
+</span><span id="line-33"></span><span>    </span><span class="annot"><span class="annottext">(OAuthConfig -&gt; OAuthConfig -&gt; Config)
+-&gt; Codec Config OAuthConfig -&gt; Codec Config (OAuthConfig -&gt; Config)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec OAuthConfig -&gt; Key -&gt; TomlCodec OAuthConfig
+forall a. TomlCodec a -&gt; Key -&gt; TomlCodec a
+</span><span class="hs-identifier hs-var">table</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec OAuthConfig
+</span><a href="Servant.OAuth2.Examples.Config.html#oauthConfigCodec"><span class="hs-identifier hs-var">oauthConfigCodec</span></a></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;oauth-github&quot;</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec OAuthConfig
+-&gt; (Config -&gt; OAuthConfig) -&gt; Codec Config OAuthConfig
+forall field a object.
+Codec field a -&gt; (object -&gt; field) -&gt; Codec object a
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Config -&gt; OAuthConfig
+</span><a href="Servant.OAuth2.Examples.Config.html#_githubOAuth"><span class="hs-identifier hs-var hs-var">_githubOAuth</span></a></span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><span class="annottext">Codec Config (OAuthConfig -&gt; Config)
+-&gt; Codec Config OAuthConfig -&gt; TomlCodec Config
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec OAuthConfig -&gt; Key -&gt; TomlCodec OAuthConfig
+forall a. TomlCodec a -&gt; Key -&gt; TomlCodec a
+</span><span class="hs-identifier hs-var">table</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec OAuthConfig
+</span><a href="Servant.OAuth2.Examples.Config.html#oauthConfigCodec"><span class="hs-identifier hs-var">oauthConfigCodec</span></a></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;oauth-google&quot;</span></span><span> </span><span class="annot"><span class="annottext">TomlCodec OAuthConfig
+-&gt; (Config -&gt; OAuthConfig) -&gt; Codec Config OAuthConfig
+forall field a object.
+Codec field a -&gt; (object -&gt; field) -&gt; Codec object a
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Config -&gt; OAuthConfig
+</span><a href="Servant.OAuth2.Examples.Config.html#_googleOAuth"><span class="hs-identifier hs-var hs-var">_googleOAuth</span></a></span><span>
+</span><span id="line-35"></span></pre></body></html>

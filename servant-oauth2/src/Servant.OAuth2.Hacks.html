@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{-|
+A collection of hacky functions needed to work around the fact that
+'wai-middleware-auth' is presently defined in terms of Wai, and, really, we
+want something that is defined for Servant.
+-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# language NamedFieldPuns #-}</span><span>
+</span><span id="line-7"></span><span class="hs-pragma">{-# language TupleSections  #-}</span><span>
+</span><span id="line-8"></span><span class="hs-pragma">{-# language ViewPatterns   #-}</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Servant.OAuth2.Hacks</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;text&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">intercalate</span></span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;text&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text.Encoding</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">decodeUtf8</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">encodeUtf8</span></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;hoauth2&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Network.OAuth.OAuth2</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">OA2</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;wai-middleware-auth&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Network.Wai.Middleware.Auth.OAuth2</span></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">OAuth2</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;wai-middleware-auth&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Network.Wai.Middleware.Auth.OAuth2</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Wai</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;wai-middleware-auth&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Network.Wai.Middleware.Auth.OAuth2.Github</span></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">Github</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;wai-middleware-auth&quot;</span><span> </span><span class="annot"><span class="hs-identifier">Network.Wai.Middleware.Auth.OAuth2.Google</span></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">Google</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Servant.OAuth2.html"><span class="hs-identifier">Servant.OAuth2</span></a></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="hs-string">&quot;uri-bytestring&quot;</span><span> </span><span class="annot"><span class="hs-identifier">URI.ByteString</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">U</span></span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- | For some settings specialised to 'Github', return the login url.</span><span>
+</span><span id="line-30"></span><span class="hs-comment">--</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
+</span><span id="line-32"></span><span id="local-6989586621679135791"><span id="local-6989586621679135793"><span class="annot"><a href="Servant.OAuth2.Hacks.html#getGithubLoginUrl"><span class="hs-identifier hs-type">getGithubLoginUrl</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Servant.OAuth2.html#OAuth2Settings"><span class="hs-identifier hs-type">OAuth2Settings</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679135793"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Github</span></span><span> </span><span class="annot"><a href="#local-6989586621679135791"><span class="hs-identifier hs-type">a</span></a></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span></span></span><span>
+</span><span id="line-33"></span><span id="getGithubLoginUrl"><span class="annot"><span class="annottext">getGithubLoginUrl :: forall (m :: * -&gt; *) (a :: [*]).
+Text -&gt; OAuth2Settings m Github a -&gt; Text
+</span><a href="Servant.OAuth2.Hacks.html#getGithubLoginUrl"><span class="hs-identifier hs-var hs-var">getGithubLoginUrl</span></a></span></span><span> </span><span id="local-6989586621679135745"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679135745"><span class="hs-identifier hs-var">callbackUrl</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">OAuth2Settings m Github a -&gt; Github
+forall (m :: * -&gt; *) p (rs :: [*]). OAuth2Settings m p rs -&gt; p
+</span><a href="Servant.OAuth2.html#provider"><span class="hs-identifier hs-var hs-var">provider</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Github</span></span><span> </span><span class="hs-special">{</span><span> </span><span id="local-6989586621679135742"><span class="annot"><span class="annottext">OAuth2
+githubOAuth2 :: Github -&gt; OAuth2
+githubOAuth2 :: OAuth2
+</span><span class="hs-identifier hs-var hs-var">githubOAuth2</span></span></span><span> </span><span class="hs-special">}</span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; OAuth2 -&gt; Maybe [Text] -&gt; Text
+</span><a href="Servant.OAuth2.Hacks.html#getRedirectUrl"><span class="hs-identifier hs-var">getRedirectUrl</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679135745"><span class="hs-identifier hs-var">callbackUrl</span></a></span><span> </span><span class="annot"><span class="annottext">OAuth2
+</span><a href="#local-6989586621679135742"><span class="hs-identifier hs-var">githubOAuth2</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">OAuth2 -&gt; Maybe [Text]
+</span><span class="hs-identifier hs-var hs-var">oa2Scope</span></span><span> </span><span class="annot"><span class="annottext">OAuth2
+</span><a href="#local-6989586621679135742"><span class="hs-identifier hs-var">githubOAuth2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- | For some settings specialised to 'Google', return the login url.</span><span>
+</span><span id="line-38"></span><span class="hs-comment">--</span><span>
+</span><span id="line-39"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
+</span><span id="line-40"></span><span id="local-6989586621679135781"><span id="local-6989586621679135783"><span class="annot"><a href="Servant.OAuth2.Hacks.html#getGoogleLoginUrl"><span class="hs-identifier hs-type">getGoogleLoginUrl</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Servant.OAuth2.html#OAuth2Settings"><span class="hs-identifier hs-type">OAuth2Settings</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679135783"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Google</span></span><span> </span><span class="annot"><a href="#local-6989586621679135781"><span class="hs-identifier hs-type">a</span></a></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span></span></span><span>
+</span><span id="line-41"></span><span id="getGoogleLoginUrl"><span class="annot"><span class="annottext">getGoogleLoginUrl :: forall (m :: * -&gt; *) (a :: [*]).
+Text -&gt; OAuth2Settings m Google a -&gt; Text
+</span><a href="Servant.OAuth2.Hacks.html#getGoogleLoginUrl"><span class="hs-identifier hs-var hs-var">getGoogleLoginUrl</span></a></span></span><span> </span><span id="local-6989586621679135737"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679135737"><span class="hs-identifier hs-var">callbackUrl</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">OAuth2Settings m Google a -&gt; Google
+forall (m :: * -&gt; *) p (rs :: [*]). OAuth2Settings m p rs -&gt; p
+</span><a href="Servant.OAuth2.html#provider"><span class="hs-identifier hs-var hs-var">provider</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Google</span></span><span> </span><span class="hs-special">{</span><span> </span><span id="local-6989586621679135735"><span class="annot"><span class="annottext">OAuth2
+googleOAuth2 :: Google -&gt; OAuth2
+googleOAuth2 :: OAuth2
+</span><span class="hs-identifier hs-var hs-var">googleOAuth2</span></span></span><span> </span><span class="hs-special">}</span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; OAuth2 -&gt; Maybe [Text] -&gt; Text
+</span><a href="Servant.OAuth2.Hacks.html#getRedirectUrl"><span class="hs-identifier hs-var">getRedirectUrl</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679135737"><span class="hs-identifier hs-var">callbackUrl</span></a></span><span> </span><span class="annot"><span class="annottext">OAuth2
+</span><a href="#local-6989586621679135735"><span class="hs-identifier hs-var">googleOAuth2</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">OAuth2 -&gt; Maybe [Text]
+</span><span class="hs-identifier hs-var hs-var">oa2Scope</span></span><span> </span><span class="annot"><span class="annottext">OAuth2
+</span><a href="#local-6989586621679135735"><span class="hs-identifier hs-var">googleOAuth2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span class="hs-comment">-- | An extremely unfortunate way of getting the redirect URL; stolen from</span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- 'Network.Wai.Auth.Internal'.</span><span>
+</span><span id="line-47"></span><span class="hs-comment">--</span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
+</span><span id="line-49"></span><span class="annot"><a href="Servant.OAuth2.Hacks.html#getRedirectUrl"><span class="hs-identifier hs-type">getRedirectUrl</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wai.OAuth2</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-50"></span><span id="getRedirectUrl"><span class="annot"><span class="annottext">getRedirectUrl :: Text -&gt; OAuth2 -&gt; Maybe [Text] -&gt; Text
+</span><a href="Servant.OAuth2.Hacks.html#getRedirectUrl"><span class="hs-identifier hs-var hs-var">getRedirectUrl</span></a></span></span><span> </span><span id="local-6989586621679135733"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679135733"><span class="hs-identifier hs-var">callbackUrl</span></a></span></span><span> </span><span id="local-6989586621679135732"><span class="annot"><span class="annottext">OAuth2
+</span><a href="#local-6989586621679135732"><span class="hs-identifier hs-var">waiOa2</span></a></span></span><span> </span><span id="local-6989586621679135731"><span class="annot"><span class="annottext">Maybe [Text]
+</span><a href="#local-6989586621679135731"><span class="hs-identifier hs-var">oa2Scope</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Text
+</span><span class="hs-identifier hs-var">decodeUtf8</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679135730"><span class="hs-identifier hs-var">redirectUrl</span></a></span><span>
+</span><span id="line-51"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-52"></span><span>  </span><span id="local-6989586621679135725"><span class="annot"><span class="annottext">scope :: Maybe ByteString
+</span><a href="#local-6989586621679135725"><span class="hs-identifier hs-var hs-var">scope</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><span class="hs-identifier hs-var">encodeUtf8</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; ([Text] -&gt; Text) -&gt; [Text] -&gt; ByteString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; [Text] -&gt; Text
+</span><span class="hs-identifier hs-var">intercalate</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot; &quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([Text] -&gt; ByteString) -&gt; Maybe [Text] -&gt; Maybe ByteString
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Maybe [Text]
+</span><a href="#local-6989586621679135731"><span class="hs-identifier hs-var">oa2Scope</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span id="local-6989586621679135730"><span class="annot"><span class="annottext">redirectUrl :: ByteString
+</span><a href="#local-6989586621679135730"><span class="hs-identifier hs-var hs-var">redirectUrl</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><span class="annottext">URIRef Absolute -&gt; ByteString
+forall {a}. URIRef a -&gt; ByteString
+</span><a href="#local-6989586621679135720"><span class="hs-identifier hs-var">getRedirectURI</span></a></span><span> </span><span class="annot"><span class="annottext">(URIRef Absolute -&gt; ByteString) -&gt; URIRef Absolute -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-55"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">([(ByteString, ByteString)] -&gt; URIRef Absolute -&gt; URIRef Absolute)
+-&gt; URIRef Absolute -&gt; [(ByteString, ByteString)] -&gt; URIRef Absolute
+forall a b c. (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c
+</span><span class="hs-identifier hs-var">flip</span></span><span> </span><span class="annot"><span class="annottext">[(ByteString, ByteString)] -&gt; URIRef Absolute -&gt; URIRef Absolute
+forall a. [(ByteString, ByteString)] -&gt; URIRef a -&gt; URIRef a
+</span><span class="hs-identifier hs-var">OA2.appendQueryParams</span></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">OAuth2 -&gt; URIRef Absolute
+</span><span class="hs-identifier hs-var">OA2.authorizationUrl</span></span><span> </span><span class="annot"><span class="annottext">OAuth2
+</span><a href="#local-6989586621679135716"><span class="hs-identifier hs-var">oa2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(ByteString, ByteString)]
+-&gt; (ByteString -&gt; [(ByteString, ByteString)])
+-&gt; Maybe ByteString
+-&gt; [(ByteString, ByteString)]
+forall b a. b -&gt; (a -&gt; b) -&gt; Maybe a -&gt; b
+</span><span class="hs-identifier hs-var">maybe</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="annottext">(ByteString, ByteString)
+-&gt; [(ByteString, ByteString)] -&gt; [(ByteString, ByteString)]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((ByteString, ByteString) -&gt; [(ByteString, ByteString)])
+-&gt; (ByteString -&gt; (ByteString, ByteString))
+-&gt; ByteString
+-&gt; [(ByteString, ByteString)]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;scope&quot;</span></span><span class="hs-special">,</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
+</span><a href="#local-6989586621679135725"><span class="hs-identifier hs-var">scope</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-58"></span><span>  </span><span id="local-6989586621679135716"><span class="annot"><span class="annottext">oa2 :: OAuth2
+</span><a href="#local-6989586621679135716"><span class="hs-identifier hs-var hs-var">oa2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">OAuth2 -&gt; (OAuth2 -&gt; OAuth2) -&gt; Maybe OAuth2 -&gt; OAuth2
+forall b a. b -&gt; (a -&gt; b) -&gt; Maybe a -&gt; b
+</span><span class="hs-identifier hs-var">maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char] -&gt; OAuth2
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;Couldn't construct the OAuth2 record.&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">OAuth2 -&gt; OAuth2
+forall a. a -&gt; a
+</span><span class="hs-identifier hs-var">id</span></span><span> </span><span class="annot"><span class="annottext">Maybe OAuth2
+</span><a href="#local-6989586621679135710"><span class="hs-identifier hs-var">fromInteralOAuth2</span></a></span><span>
+</span><span id="line-59"></span><span>  </span><span id="local-6989586621679135720"><span class="annot"><span class="annottext">getRedirectURI :: URIRef a -&gt; ByteString
+</span><a href="#local-6989586621679135720"><span class="hs-identifier hs-var hs-var">getRedirectURI</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">URIRef a -&gt; ByteString
+forall {a}. URIRef a -&gt; ByteString
+</span><span class="hs-identifier hs-var">U.serializeURIRef'</span></span><span>
+</span><span id="line-60"></span><span>  </span><span id="local-6989586621679135706"><span class="annot"><span class="annottext">parseAbsoluteURI :: Text -&gt; Maybe (URIRef Absolute)
+</span><a href="#local-6989586621679135706"><span class="hs-identifier hs-var hs-var">parseAbsoluteURI</span></a></span></span><span> </span><span id="local-6989586621679135705"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679135705"><span class="hs-identifier hs-var">urlTxt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">URIParserOptions
+-&gt; ByteString -&gt; Either URIParseError (URIRef Absolute)
+</span><span class="hs-identifier hs-var">U.parseURI</span></span><span> </span><span class="annot"><span class="annottext">URIParserOptions
+</span><span class="hs-identifier hs-var">U.strictURIParserOptions</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><span class="hs-identifier hs-var">encodeUtf8</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679135705"><span class="hs-identifier hs-var">urlTxt</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-62"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="annot"><span class="annottext">URIParseError
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe (URIRef Absolute)
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-63"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679135702"><span class="annot"><span class="annottext">URIRef Absolute
+</span><a href="#local-6989586621679135702"><span class="hs-identifier hs-var">url</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">URIRef Absolute -&gt; Maybe (URIRef Absolute)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">URIRef Absolute
+</span><a href="#local-6989586621679135702"><span class="hs-identifier hs-var">url</span></a></span><span>
+</span><span id="line-64"></span><span>  </span><span id="local-6989586621679135710"><span class="annot"><span class="annottext">fromInteralOAuth2 :: Maybe OAuth2
+</span><a href="#local-6989586621679135710"><span class="hs-identifier hs-var hs-var">fromInteralOAuth2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-65"></span><span>    </span><span id="local-6989586621679135693"><span class="annot"><span class="annottext">URIRef Absolute
+</span><a href="#local-6989586621679135693"><span class="hs-identifier hs-var">authEndpointURI</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe (URIRef Absolute)
+</span><a href="#local-6989586621679135706"><span class="hs-identifier hs-var">parseAbsoluteURI</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Maybe (URIRef Absolute))
+-&gt; Text -&gt; Maybe (URIRef Absolute)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">OAuth2 -&gt; Text
+</span><span class="hs-identifier hs-var hs-var">Wai.oa2AuthorizeEndpoint</span></span><span> </span><span class="annot"><span class="annottext">OAuth2
+</span><a href="#local-6989586621679135732"><span class="hs-identifier hs-var">waiOa2</span></a></span><span>
+</span><span id="line-66"></span><span>    </span><span id="local-6989586621679135691"><span class="annot"><span class="annottext">URIRef Absolute
+</span><a href="#local-6989586621679135691"><span class="hs-identifier hs-var">callbackURI</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe (URIRef Absolute)
+</span><a href="#local-6989586621679135706"><span class="hs-identifier hs-var">parseAbsoluteURI</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679135733"><span class="hs-identifier hs-var">callbackUrl</span></a></span><span>
+</span><span id="line-67"></span><span>    </span><span class="annot"><span class="annottext">OAuth2 -&gt; Maybe OAuth2
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(OAuth2 -&gt; Maybe OAuth2) -&gt; OAuth2 -&gt; Maybe OAuth2
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-68"></span><span>      </span><span class="annot"><span class="annottext">OAuth2 :: Text
+-&gt; Text
+-&gt; URIRef Absolute
+-&gt; URIRef Absolute
+-&gt; URIRef Absolute
+-&gt; OAuth2
+</span><span class="hs-identifier hs-type">OA2.OAuth2</span></span><span>
+</span><span id="line-69"></span><span>        </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">oauth2ClientId :: Text
+</span><span class="hs-identifier hs-var">OA2.oauth2ClientId</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">OAuth2 -&gt; Text
+</span><span class="hs-identifier hs-var hs-var">Wai.oa2ClientId</span></span><span> </span><span class="annot"><span class="annottext">OAuth2
+</span><a href="#local-6989586621679135732"><span class="hs-identifier hs-var">waiOa2</span></a></span><span>
+</span><span id="line-70"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">oauth2ClientSecret :: Text
+</span><span class="hs-identifier hs-var">OA2.oauth2ClientSecret</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Text
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;Client secret not needed.&quot;</span></span><span>
+</span><span id="line-71"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">oauth2AuthorizeEndpoint :: URIRef Absolute
+</span><span class="hs-identifier hs-var">OA2.oauth2AuthorizeEndpoint</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">URIRef Absolute
+</span><a href="#local-6989586621679135693"><span class="hs-identifier hs-var">authEndpointURI</span></a></span><span>
+</span><span id="line-72"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">oauth2TokenEndpoint :: URIRef Absolute
+</span><span class="hs-identifier hs-var">OA2.oauth2TokenEndpoint</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; URIRef Absolute
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;No token endpoint&quot;</span></span><span>
+</span><span id="line-73"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">oauth2RedirectUri :: URIRef Absolute
+</span><span class="hs-identifier hs-var">OA2.oauth2RedirectUri</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">URIRef Absolute
+</span><a href="#local-6989586621679135691"><span class="hs-identifier hs-var">callbackURI</span></a></span><span>
+</span><span id="line-74"></span><span>        </span><span class="hs-special">}</span><span>
+</span><span id="line-75"></span></pre></body></html>
