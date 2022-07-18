@@ -17,8 +17,8 @@ jobs:
         # use this to specify what resolvers and ghc to use
         plan:
         - { resolver: "--resolver lts-19.14"  }    # ghc-9.0.2
-        - { resolver: "--resolver nightly" }
-        - { resolver: ""                   }
+        # - { resolver: "--resolver nightly" }
+        # - { resolver: ""                   }
         # use this to include any dependencies from OS package managers
         include: []
         # - os: ubuntu-latest
