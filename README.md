@@ -4,6 +4,11 @@ This is a modern servant wrapper around the
 [wai-middleware-auth](https://github.com/fpco/wai-middleware-auth) OAuth2
 provider implementations.
 
+Documentation:
+
+- <https://tweag.github.io/servant-oauth2/servant-oauth2/>
+- <https://tweag.github.io/servant-oauth2/servant-oauth2-examples/>
+
 
 #### Hacking
 
