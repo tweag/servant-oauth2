@@ -54,3 +54,10 @@ http://localhost:8080/auth/github/complete
 - [x] Pass settings through somehow
 - [x] Try and hide away as much details as possible
 - [x] Define a basic structure following `AuthProtect`
+
+
+#### Acknowledgements
+
+Thanks to [tchoutri](https://github.com/tchoutri) and crew for the awesome work on
+[flora-server](https://github.com/flora-pm/flora-server) which
+partially-inspired this project!
