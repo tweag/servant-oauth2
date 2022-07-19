@@ -98,9 +98,9 @@ forall a. a -&gt; Maybe a
 </span><span id="line-74"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
 </span><span id="line-75"></span><span class="annot"><a href="Servant.OAuth2.Cookies.html#redirectWithCookie"><span class="hs-identifier hs-type">redirectWithCookie</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">SetCookie</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Servant.OAuth2.Cookies.html#RedirectWithCookie"><span class="hs-identifier hs-type">RedirectWithCookie</span></a></span><span>
 </span><span id="line-76"></span><span id="redirectWithCookie"><span class="annot"><span class="annottext">redirectWithCookie :: Text -&gt; SetCookie -&gt; RedirectWithCookie
-</span><a href="Servant.OAuth2.Cookies.html#redirectWithCookie"><span class="hs-identifier hs-var hs-var">redirectWithCookie</span></a></span></span><span> </span><span id="local-6989586621679135554"><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679135554"><span class="hs-identifier hs-var">destination</span></a></span></span><span> </span><span id="local-6989586621679135553"><span class="annot"><span class="annottext">SetCookie
-</span><a href="#local-6989586621679135553"><span class="hs-identifier hs-var">cookie</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Servant.OAuth2.Cookies.html#redirectWithCookie"><span class="hs-identifier hs-var hs-var">redirectWithCookie</span></a></span></span><span> </span><span id="local-6989586621679109179"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679109179"><span class="hs-identifier hs-var">destination</span></a></span></span><span> </span><span id="local-6989586621679109178"><span class="annot"><span class="annottext">SetCookie
+</span><a href="#local-6989586621679109178"><span class="hs-identifier hs-var">cookie</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-77"></span><span>  </span><span class="annot"><span class="annottext">Text
 -&gt; Headers
      '[Header' '[Optional, Strict] &quot;Set-Cookie&quot; SetCookie] NoContent
@@ -109,7 +109,7 @@ forall (h :: Symbol) v orig new.
 AddHeader h v orig new =&gt;
 v -&gt; orig -&gt; new
 </span><span class="hs-identifier hs-var">addHeader</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679135554"><span class="hs-identifier hs-var">destination</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SetCookie
+</span><a href="#local-6989586621679109179"><span class="hs-identifier hs-var">destination</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SetCookie
 -&gt; NoContent
 -&gt; Headers
      '[Header' '[Optional, Strict] &quot;Set-Cookie&quot; SetCookie] NoContent
@@ -117,7 +117,7 @@ forall (h :: Symbol) v orig new.
 AddHeader h v orig new =&gt;
 v -&gt; orig -&gt; new
 </span><span class="hs-identifier hs-var">addHeader</span></span><span> </span><span class="annot"><span class="annottext">SetCookie
-</span><a href="#local-6989586621679135553"><span class="hs-identifier hs-var">cookie</span></a></span><span> </span><span class="annot"><span class="annottext">NoContent
+</span><a href="#local-6989586621679109178"><span class="hs-identifier hs-var">cookie</span></a></span><span> </span><span class="annot"><span class="annottext">NoContent
 </span><span class="hs-identifier hs-var">NoContent</span></span><span class="hs-special">)</span><span>
 </span><span id="line-78"></span><span>
 </span><span id="line-79"></span><span>
@@ -125,47 +125,47 @@ v -&gt; orig -&gt; new
 </span><span id="line-81"></span><span class="hs-comment">-- ident into a sessionId kind of object.</span><span>
 </span><span id="line-82"></span><span class="hs-comment">--</span><span>
 </span><span id="line-83"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
-</span><span id="line-84"></span><span class="annot"><a href="Servant.OAuth2.Cookies.html#simpleCookieOAuth2Settings"><span class="hs-identifier hs-type">simpleCookieOAuth2Settings</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679135655"><span class="annot"><a href="#local-6989586621679135655"><span class="hs-identifier hs-type">s</span></a></span></span><span> </span><span id="local-6989586621679135653"><span class="annot"><a href="#local-6989586621679135653"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span id="local-6989586621679135651"><span class="annot"><a href="#local-6989586621679135651"><span class="hs-identifier hs-type">p</span></a></span></span><span>
-</span><span id="line-85"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Binary.Binary</span></span><span> </span><span class="annot"><a href="#local-6989586621679135655"><span class="hs-identifier hs-type">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Applicative</span></span><span> </span><span class="annot"><a href="#local-6989586621679135653"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679135653"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679135653"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-86"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679135651"><span class="hs-identifier hs-type">p</span></a></span><span>
-</span><span id="line-87"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Request</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Servant.OAuth2.html#Ident"><span class="hs-identifier hs-type">Ident</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679135653"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679135655"><span class="hs-identifier hs-type">s</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-84"></span><span class="annot"><a href="Servant.OAuth2.Cookies.html#simpleCookieOAuth2Settings"><span class="hs-identifier hs-type">simpleCookieOAuth2Settings</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679109280"><span class="annot"><a href="#local-6989586621679109280"><span class="hs-identifier hs-type">s</span></a></span></span><span> </span><span id="local-6989586621679109278"><span class="annot"><a href="#local-6989586621679109278"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span id="local-6989586621679109276"><span class="annot"><a href="#local-6989586621679109276"><span class="hs-identifier hs-type">p</span></a></span></span><span>
+</span><span id="line-85"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Binary.Binary</span></span><span> </span><span class="annot"><a href="#local-6989586621679109280"><span class="hs-identifier hs-type">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Applicative</span></span><span> </span><span class="annot"><a href="#local-6989586621679109278"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679109278"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679109278"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679109276"><span class="hs-identifier hs-type">p</span></a></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Request</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Servant.OAuth2.html#Ident"><span class="hs-identifier hs-type">Ident</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679109278"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679109280"><span class="hs-identifier hs-type">s</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-88"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Key</span></span><span>
-</span><span id="line-89"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Servant.OAuth2.html#OAuth2Settings"><span class="hs-identifier hs-type">OAuth2Settings</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679135653"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679135651"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">WithStatus</span></span><span> </span><span class="annot"><span class="hs-number">303</span></span><span> </span><span class="annot"><a href="Servant.OAuth2.Cookies.html#RedirectWithCookie"><span class="hs-identifier hs-type">RedirectWithCookie</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-89"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Servant.OAuth2.html#OAuth2Settings"><span class="hs-identifier hs-type">OAuth2Settings</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679109278"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679109276"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">WithStatus</span></span><span> </span><span class="annot"><span class="hs-number">303</span></span><span> </span><span class="annot"><a href="Servant.OAuth2.Cookies.html#RedirectWithCookie"><span class="hs-identifier hs-type">RedirectWithCookie</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-90"></span><span id="simpleCookieOAuth2Settings"><span class="annot"><span class="annottext">simpleCookieOAuth2Settings :: forall s (m :: * -&gt; *) p.
 (Binary s, Applicative m, Monad m, MonadIO m) =&gt;
 p
 -&gt; (Request -&gt; ByteString -&gt; m s)
 -&gt; Key
 -&gt; OAuth2Settings m p '[WithStatus 303 RedirectWithCookie]
-</span><a href="Servant.OAuth2.Cookies.html#simpleCookieOAuth2Settings"><span class="hs-identifier hs-var hs-var">simpleCookieOAuth2Settings</span></a></span></span><span> </span><span id="local-6989586621679135523"><span class="annot"><span class="annottext">p
-</span><a href="#local-6989586621679135523"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679135522"><span class="annot"><span class="annottext">Request -&gt; ByteString -&gt; m s
-</span><a href="#local-6989586621679135522"><span class="hs-identifier hs-var">toSessionId</span></a></span></span><span> </span><span id="local-6989586621679135521"><span class="annot"><span class="annottext">Key
-</span><a href="#local-6989586621679135521"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Servant.OAuth2.Cookies.html#simpleCookieOAuth2Settings"><span class="hs-identifier hs-var hs-var">simpleCookieOAuth2Settings</span></a></span></span><span> </span><span id="local-6989586621679109148"><span class="annot"><span class="annottext">p
+</span><a href="#local-6989586621679109148"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679109147"><span class="annot"><span class="annottext">Request -&gt; ByteString -&gt; m s
+</span><a href="#local-6989586621679109147"><span class="hs-identifier hs-var">toSessionId</span></a></span></span><span> </span><span id="local-6989586621679109146"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679109146"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-91"></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) p.
 Applicative m =&gt;
 p -&gt; OAuth2Settings m p '[WithStatus 200 Text]
-</span><a href="Servant.OAuth2.html#defaultOAuth2Settings"><span class="hs-identifier hs-var">defaultOAuth2Settings</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679135653"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="annottext">p
-</span><a href="#local-6989586621679135523"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span>
+</span><a href="Servant.OAuth2.html#defaultOAuth2Settings"><span class="hs-identifier hs-var">defaultOAuth2Settings</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679109278"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="annottext">p
+</span><a href="#local-6989586621679109148"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-92"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">success :: Request
 -&gt; ByteString -&gt; m (Union '[WithStatus 303 RedirectWithCookie])
-</span><a href="Servant.OAuth2.html#success"><span class="hs-identifier hs-var">success</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679135518"><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679135518"><span class="hs-identifier hs-var">request</span></a></span></span><span> </span><span id="local-6989586621679135517"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135517"><span class="hs-identifier hs-var">ident</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-93"></span><span>          </span><span id="local-6989586621679135516"><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679135516"><span class="hs-identifier hs-var">sid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Request -&gt; ByteString -&gt; m s
-</span><a href="#local-6989586621679135522"><span class="hs-identifier hs-var">toSessionId</span></a></span><span> </span><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679135518"><span class="hs-identifier hs-var">request</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135517"><span class="hs-identifier hs-var">ident</span></a></span><span>
-</span><span id="line-94"></span><span>          </span><span id="local-6989586621679135515"><span class="annot"><span class="annottext">SetCookie
-</span><a href="#local-6989586621679135515"><span class="hs-identifier hs-var">cookie</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO SetCookie -&gt; m SetCookie
+</span><a href="Servant.OAuth2.html#success"><span class="hs-identifier hs-var">success</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679109143"><span class="annot"><span class="annottext">Request
+</span><a href="#local-6989586621679109143"><span class="hs-identifier hs-var">request</span></a></span></span><span> </span><span id="local-6989586621679109142"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679109142"><span class="hs-identifier hs-var">ident</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-93"></span><span>          </span><span id="local-6989586621679109141"><span class="annot"><span class="annottext">s
+</span><a href="#local-6989586621679109141"><span class="hs-identifier hs-var">sid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Request -&gt; ByteString -&gt; m s
+</span><a href="#local-6989586621679109147"><span class="hs-identifier hs-var">toSessionId</span></a></span><span> </span><span class="annot"><span class="annottext">Request
+</span><a href="#local-6989586621679109143"><span class="hs-identifier hs-var">request</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679109142"><span class="hs-identifier hs-var">ident</span></a></span><span>
+</span><span id="line-94"></span><span>          </span><span id="local-6989586621679109140"><span class="annot"><span class="annottext">SetCookie
+</span><a href="#local-6989586621679109140"><span class="hs-identifier hs-var">cookie</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO SetCookie -&gt; m SetCookie
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO SetCookie -&gt; m SetCookie) -&gt; IO SetCookie -&gt; m SetCookie
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; s -&gt; IO SetCookie
 forall s. Binary s =&gt; Key -&gt; s -&gt; IO SetCookie
 </span><a href="Servant.OAuth2.Cookies.html#buildSessionCookie"><span class="hs-identifier hs-var">buildSessionCookie</span></a></span><span> </span><span class="annot"><span class="annottext">Key
-</span><a href="#local-6989586621679135521"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679135516"><span class="hs-identifier hs-var">sid</span></a></span><span>
+</span><a href="#local-6989586621679109146"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">s
+</span><a href="#local-6989586621679109141"><span class="hs-identifier hs-var">sid</span></a></span><span>
 </span><span id="line-95"></span><span>          </span><span class="annot"><span class="annottext">WithStatus 303 RedirectWithCookie
 -&gt; m (Union '[WithStatus 303 RedirectWithCookie])
 forall x (xs :: [*]) (f :: * -&gt; *).
@@ -180,7 +180,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">WithStatus</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-number">303</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; SetCookie -&gt; RedirectWithCookie
 </span><a href="Servant.OAuth2.Cookies.html#redirectWithCookie"><span class="hs-identifier hs-var">redirectWithCookie</span></a></span><span> </span><span class="annot"><span class="annottext">Text
 </span><span class="hs-string">&quot;/&quot;</span></span><span> </span><span class="annot"><span class="annottext">SetCookie
-</span><a href="#local-6989586621679135515"><span class="hs-identifier hs-var">cookie</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679109140"><span class="hs-identifier hs-var">cookie</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-96"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-97"></span><span>
 </span><span id="line-98"></span><span>
@@ -188,15 +188,15 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-100"></span><span class="hs-comment">-- ident value.</span><span>
 </span><span id="line-101"></span><span class="hs-comment">--</span><span>
 </span><span id="line-102"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
-</span><span id="line-103"></span><span id="local-6989586621679135625"><span class="annot"><a href="Servant.OAuth2.Cookies.html#buildSessionCookie"><span class="hs-identifier hs-type">buildSessionCookie</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Binary.Binary</span></span><span> </span><span class="annot"><a href="#local-6989586621679135625"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Key</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679135625"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SetCookie</span></span></span><span>
+</span><span id="line-103"></span><span id="local-6989586621679109250"><span class="annot"><a href="Servant.OAuth2.Cookies.html#buildSessionCookie"><span class="hs-identifier hs-type">buildSessionCookie</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Binary.Binary</span></span><span> </span><span class="annot"><a href="#local-6989586621679109250"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Key</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679109250"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SetCookie</span></span></span><span>
 </span><span id="line-104"></span><span id="buildSessionCookie"><span class="annot"><span class="annottext">buildSessionCookie :: forall s. Binary s =&gt; Key -&gt; s -&gt; IO SetCookie
-</span><a href="Servant.OAuth2.Cookies.html#buildSessionCookie"><span class="hs-identifier hs-var hs-var">buildSessionCookie</span></a></span></span><span> </span><span id="local-6989586621679135506"><span class="annot"><span class="annottext">Key
-</span><a href="#local-6989586621679135506"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span id="local-6989586621679135505"><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679135505"><span class="hs-identifier hs-var">sid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-105"></span><span>  </span><span id="local-6989586621679135504"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135504"><span class="hs-identifier hs-var">encrypted</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Key -&gt; ByteString -&gt; IO ByteString
+</span><a href="Servant.OAuth2.Cookies.html#buildSessionCookie"><span class="hs-identifier hs-var hs-var">buildSessionCookie</span></a></span></span><span> </span><span id="local-6989586621679109131"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679109131"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span id="local-6989586621679109130"><span class="annot"><span class="annottext">s
+</span><a href="#local-6989586621679109130"><span class="hs-identifier hs-var">sid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-105"></span><span>  </span><span id="local-6989586621679109129"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679109129"><span class="hs-identifier hs-var">encrypted</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Key -&gt; ByteString -&gt; IO ByteString
 </span><span class="hs-identifier hs-var">encryptIO</span></span><span> </span><span class="annot"><span class="annottext">Key
-</span><a href="#local-6989586621679135506"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ByteString) -&gt; ByteString -&gt; IO ByteString
+</span><a href="#local-6989586621679109131"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ByteString) -&gt; ByteString -&gt; IO ByteString
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
 </span><span class="hs-identifier hs-var">BSL.toStrict</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; ByteString) -&gt; ByteString -&gt; ByteString
@@ -206,7 +206,7 @@ forall a. Binary a =&gt; a -&gt; ByteString
 </span><span class="hs-identifier hs-var">Binary.encode</span></span><span> </span><span class="annot"><span class="annottext">(s -&gt; ByteString) -&gt; s -&gt; ByteString
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679135505"><span class="hs-identifier hs-var">sid</span></a></span><span>
+</span><a href="#local-6989586621679109130"><span class="hs-identifier hs-var">sid</span></a></span><span>
 </span><span id="line-106"></span><span>  </span><span class="annot"><span class="annottext">SetCookie -&gt; IO SetCookie
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(SetCookie -&gt; IO SetCookie) -&gt; SetCookie -&gt; IO SetCookie
@@ -220,10 +220,10 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-109"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">setCookieValue :: ByteString
 </span><span class="hs-identifier hs-var">setCookieValue</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
 </span><span class="hs-identifier hs-var">Base64.encode</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135504"><span class="hs-identifier hs-var">encrypted</span></a></span><span>
+</span><a href="#local-6989586621679109129"><span class="hs-identifier hs-var">encrypted</span></a></span><span>
 </span><span id="line-110"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">setCookieMaxAge :: Maybe DiffTime
 </span><span class="hs-identifier hs-var">setCookieMaxAge</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe DiffTime
-</span><a href="#local-6989586621679135500"><span class="hs-identifier hs-var">oneWeek</span></a></span><span>
+</span><a href="#local-6989586621679109125"><span class="hs-identifier hs-var">oneWeek</span></a></span><span>
 </span><span id="line-111"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">setCookiePath :: Maybe ByteString
 </span><span class="hs-identifier hs-var">setCookiePath</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Maybe ByteString
 forall a. a -&gt; Maybe a
@@ -242,8 +242,8 @@ forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">False</span></span><span>
 </span><span id="line-115"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-116"></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-117"></span><span>  </span><span id="local-6989586621679135500"><span class="annot"><span class="annottext">oneWeek :: Maybe DiffTime
-</span><a href="#local-6989586621679135500"><span class="hs-identifier hs-var hs-var">oneWeek</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DiffTime -&gt; Maybe DiffTime
+</span><span id="line-117"></span><span>  </span><span id="local-6989586621679109125"><span class="annot"><span class="annottext">oneWeek :: Maybe DiffTime
+</span><a href="#local-6989586621679109125"><span class="hs-identifier hs-var hs-var">oneWeek</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DiffTime -&gt; Maybe DiffTime
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(DiffTime -&gt; Maybe DiffTime) -&gt; DiffTime -&gt; Maybe DiffTime
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -261,25 +261,25 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span id="line-121"></span><span class="hs-comment">-- 'buildSessionCookie'.</span><span>
 </span><span id="line-122"></span><span class="hs-comment">--</span><span>
 </span><span id="line-123"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
-</span><span id="line-124"></span><span id="local-6989586621679135613"><span class="annot"><a href="Servant.OAuth2.Cookies.html#getSessionIdFromCookie"><span class="hs-identifier hs-type">getSessionIdFromCookie</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Binary.Binary</span></span><span> </span><span class="annot"><a href="#local-6989586621679135613"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Request</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Key</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679135613"><span class="hs-identifier hs-type">s</span></a></span></span><span>
+</span><span id="line-124"></span><span id="local-6989586621679109238"><span class="annot"><a href="Servant.OAuth2.Cookies.html#getSessionIdFromCookie"><span class="hs-identifier hs-type">getSessionIdFromCookie</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Binary.Binary</span></span><span> </span><span class="annot"><a href="#local-6989586621679109238"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Request</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Key</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679109238"><span class="hs-identifier hs-type">s</span></a></span></span><span>
 </span><span id="line-125"></span><span id="getSessionIdFromCookie"><span class="annot"><span class="annottext">getSessionIdFromCookie :: forall s. Binary s =&gt; Request -&gt; Key -&gt; Maybe s
-</span><a href="Servant.OAuth2.Cookies.html#getSessionIdFromCookie"><span class="hs-identifier hs-var hs-var">getSessionIdFromCookie</span></a></span></span><span> </span><span id="local-6989586621679135491"><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679135491"><span class="hs-identifier hs-var">request</span></a></span></span><span> </span><span id="local-6989586621679135490"><span class="annot"><span class="annottext">Key
-</span><a href="#local-6989586621679135490"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe s
-</span><a href="#local-6989586621679135489"><span class="hs-identifier hs-var">maybeSessionId</span></a></span><span>
+</span><a href="Servant.OAuth2.Cookies.html#getSessionIdFromCookie"><span class="hs-identifier hs-var hs-var">getSessionIdFromCookie</span></a></span></span><span> </span><span id="local-6989586621679109116"><span class="annot"><span class="annottext">Request
+</span><a href="#local-6989586621679109116"><span class="hs-identifier hs-var">request</span></a></span></span><span> </span><span id="local-6989586621679109115"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679109115"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe s
+</span><a href="#local-6989586621679109114"><span class="hs-identifier hs-var">maybeSessionId</span></a></span><span>
 </span><span id="line-126"></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-127"></span><span>  </span><span id="local-6989586621679135488"><span class="annot"><span class="annottext">fromEither :: (b -&gt; Maybe a) -&gt; Either a b -&gt; Maybe a
-</span><a href="#local-6989586621679135488"><span class="hs-identifier hs-var hs-var">fromEither</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Maybe a) -&gt; (b -&gt; Maybe a) -&gt; Either a b -&gt; Maybe a
+</span><span id="line-127"></span><span>  </span><span id="local-6989586621679109113"><span class="annot"><span class="annottext">fromEither :: (b -&gt; Maybe a) -&gt; Either a b -&gt; Maybe a
+</span><a href="#local-6989586621679109113"><span class="hs-identifier hs-var hs-var">fromEither</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Maybe a) -&gt; (b -&gt; Maybe a) -&gt; Either a b -&gt; Maybe a
 forall a c b. (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
 </span><span class="hs-identifier hs-var">either</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe a -&gt; a -&gt; Maybe a
 forall a b. a -&gt; b -&gt; a
 </span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="annot"><span class="annottext">Maybe a
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span class="hs-special">)</span><span>
-</span><span id="line-128"></span><span>  </span><span id="local-6989586621679135489"><span class="annot"><span class="annottext">maybeSessionId :: Maybe s
-</span><a href="#local-6989586621679135489"><span class="hs-identifier hs-var hs-var">maybeSessionId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-129"></span><span>    </span><span id="local-6989586621679135469"><span class="annot"><span class="annottext">Cookies
-</span><a href="#local-6989586621679135469"><span class="hs-identifier hs-var">cookies</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Cookies
+</span><span id="line-128"></span><span>  </span><span id="local-6989586621679109114"><span class="annot"><span class="annottext">maybeSessionId :: Maybe s
+</span><a href="#local-6989586621679109114"><span class="hs-identifier hs-var hs-var">maybeSessionId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-129"></span><span>    </span><span id="local-6989586621679109094"><span class="annot"><span class="annottext">Cookies
+</span><a href="#local-6989586621679109094"><span class="hs-identifier hs-var">cookies</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Cookies
 </span><span class="hs-identifier hs-var">parseCookies</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Cookies) -&gt; Maybe ByteString -&gt; Maybe Cookies
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">HeaderName -&gt; [(HeaderName, ByteString)] -&gt; Maybe ByteString
@@ -287,43 +287,43 @@ forall a b. Eq a =&gt; a -&gt; [(a, b)] -&gt; Maybe b
 </span><span class="hs-identifier hs-var">List.lookup</span></span><span> </span><span class="annot"><span class="annottext">HeaderName
 </span><span class="hs-identifier hs-var">hCookie</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Request -&gt; [(HeaderName, ByteString)]
 </span><span class="hs-identifier hs-var hs-var">Wai.requestHeaders</span></span><span> </span><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679135491"><span class="hs-identifier hs-var">request</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-130"></span><span>    </span><span id="local-6989586621679135465"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135465"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Cookies -&gt; Maybe ByteString
+</span><a href="#local-6989586621679109116"><span class="hs-identifier hs-var">request</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-130"></span><span>    </span><span id="local-6989586621679109090"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679109090"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Cookies -&gt; Maybe ByteString
 forall a b. Eq a =&gt; a -&gt; [(a, b)] -&gt; Maybe b
 </span><span class="hs-identifier hs-var">List.lookup</span></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="Servant.OAuth2.Cookies.html#ourCookie"><span class="hs-identifier hs-var">ourCookie</span></a></span><span> </span><span class="annot"><span class="annottext">Cookies
-</span><a href="#local-6989586621679135469"><span class="hs-identifier hs-var">cookies</span></a></span><span>
-</span><span id="line-131"></span><span>    </span><span id="local-6989586621679135464"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135464"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Maybe ByteString)
+</span><a href="#local-6989586621679109094"><span class="hs-identifier hs-var">cookies</span></a></span><span>
+</span><span id="line-131"></span><span>    </span><span id="local-6989586621679109089"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679109089"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Maybe ByteString)
 -&gt; Either String ByteString -&gt; Maybe ByteString
 forall {b} {a} {a}. (b -&gt; Maybe a) -&gt; Either a b -&gt; Maybe a
-</span><a href="#local-6989586621679135488"><span class="hs-identifier hs-var">fromEither</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Maybe ByteString
+</span><a href="#local-6989586621679109113"><span class="hs-identifier hs-var">fromEither</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Maybe ByteString
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Either String ByteString -&gt; Maybe ByteString)
 -&gt; Either String ByteString -&gt; Maybe ByteString
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String ByteString
 </span><span class="hs-identifier hs-var">Base64.decode</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135465"><span class="hs-identifier hs-var">v</span></a></span><span>
-</span><span id="line-132"></span><span>    </span><span id="local-6989586621679135462"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135462"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Key -&gt; ByteString -&gt; Maybe ByteString
+</span><a href="#local-6989586621679109090"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-132"></span><span>    </span><span id="local-6989586621679109087"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679109087"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Key -&gt; ByteString -&gt; Maybe ByteString
 </span><span class="hs-identifier hs-var">decrypt</span></span><span> </span><span class="annot"><span class="annottext">Key
-</span><a href="#local-6989586621679135490"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135464"><span class="hs-identifier hs-var">e</span></a></span><span>
-</span><span id="line-133"></span><span>    </span><span id="local-6989586621679135461"><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679135461"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">((ByteString, ByteOffset, s) -&gt; Maybe s)
+</span><a href="#local-6989586621679109115"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679109089"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-133"></span><span>    </span><span id="local-6989586621679109086"><span class="annot"><span class="annottext">s
+</span><a href="#local-6989586621679109086"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">((ByteString, ByteOffset, s) -&gt; Maybe s)
 -&gt; Either
      (ByteString, ByteOffset, String) (ByteString, ByteOffset, s)
 -&gt; Maybe s
 forall {b} {a} {a}. (b -&gt; Maybe a) -&gt; Either a b -&gt; Maybe a
-</span><a href="#local-6989586621679135488"><span class="hs-identifier hs-var">fromEither</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679109113"><span class="hs-identifier hs-var">fromEither</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString
 </span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteOffset
-</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679135460"><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679135460"><span class="hs-identifier hs-var">c</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">s -&gt; Maybe s
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679109085"><span class="annot"><span class="annottext">s
+</span><a href="#local-6989586621679109085"><span class="hs-identifier hs-var">c</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">s -&gt; Maybe s
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679135460"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Either
+</span><a href="#local-6989586621679109085"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Either
    (ByteString, ByteOffset, String) (ByteString, ByteOffset, s)
  -&gt; Maybe s)
 -&gt; Either
@@ -340,9 +340,9 @@ ByteString
      (ByteString, ByteOffset, String) (ByteString, ByteOffset, a)
 </span><span class="hs-identifier hs-var">Binary.decodeOrFail</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
 </span><span class="hs-identifier hs-var">BSL.fromStrict</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679135462"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679109087"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-134"></span><span>    </span><span class="annot"><span class="annottext">s -&gt; Maybe s
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679135461"><span class="hs-identifier hs-var">i</span></a></span><span>
+</span><a href="#local-6989586621679109086"><span class="hs-identifier hs-var">i</span></a></span><span>
 </span><span id="line-135"></span></pre></body></html>
