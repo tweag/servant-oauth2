@@ -10,13 +10,13 @@ permissions:
 
 
 jobs:
-  call-ci-script:
-    uses: ./.github/workflows/ci.yml
-
   build-and-deploy:
     concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
+      - name: call-ci-script
+        uses: ./.github/workflows/ci.yml
+
       - name: Checkout 🛎️
         uses: actions/checkout@v3
 
