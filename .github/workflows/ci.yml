@@ -60,7 +60,7 @@ jobs:
     - name: Build
       run: |
         set -ex
-        stack --no-terminal $ARGS test --bench --no-run-benchmarks --haddock
+        stack --no-terminal $ARGS test --bench --no-run-benchmarks
         set +ex
       env:
         ARGS: ${{ matrix.plan.resolver }}
