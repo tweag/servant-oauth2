@@ -18,4 +18,7 @@ cp -r $doc_root/servant-oauth2-examples-$exVer/* docs/servant-oauth2-examples
 # Elegant method of making the links correct ...
 # Note: lts-19.14 is hard-coded here. Could locate it from the `stack.yaml` if
 # we wished it. Note: Even more elegant than originally anticipated ....
-sed -i '/^href=\"\.\.\/servant-oauth2/! s/href=\"\.\./\href="\https:\/\/www\.stackage\.org\/haddock\/lts-19\.14/g' docs/**/*.html
+# Please forgive us for our: echo seds | sed 's/ed/in/'.
+sed -i 's/href=\"\.\./\href="\https:\/\/www\.stackage\.org\/haddock\/lts-19\.14/g' docs/**/*.html
+sed -i 's/href="\https:\/\/www\.stackage\.org\/haddock\/lts-19\.14\/servant-oauth2-examples-\([0-9.]*\)/href=\"\.\.\/servant-oauth2-examples/g' docs/**/*.html
+sed -i 's/href="\https:\/\/www\.stackage\.org\/haddock\/lts-19\.14\/servant-oauth2-\([0-9.]*\)/href=\"\.\.\/servant-oauth2/g' docs/**/*.html
