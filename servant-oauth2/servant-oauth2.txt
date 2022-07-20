@@ -28,7 +28,7 @@ module Servant.OAuth2
 --   auth handler to use. See:
 --   <a>https://docs.servant.dev/en/stable/tutorial/Authentication.html#recap</a>
 --   for more detail.
-data Tag a (rs :: [Type])
+newtype Tag a (rs :: [Type])
 Tag :: Union rs -> Tag a (rs :: [Type])
 [unTag] :: Tag a (rs :: [Type]) -> Union rs
 
