@@ -192,7 +192,7 @@ optionalUserAuthHandler db key = mkAuthHandler f
 --
 -- @since 0.1.0.0
 data Routes mode = Routes
-  { site :: mode :- AuthProtect "optional-cookie" :> NamedRoutes (SiteRoutes)
+  { site :: mode :- AuthProtect "optional-cookie" :> NamedRoutes SiteRoutes
   , authGithub ::
       mode
         :- AuthProtect Github
@@ -260,7 +260,7 @@ adminHandler = do
         , "you can't know this"
         ]
   u <- getAdmin
-  pure $
+  pure
     [shamlet|
       <h3> Admin
       <p> Secrets:
@@ -310,7 +310,7 @@ adminServer = verifyAdmin $ AdminRoutes
 --
 -- @since 0.1.0.0
 isAdmin :: Maybe User -> Bool
-isAdmin (Just (User {role})) = role == "admin"
+isAdmin (Just User {role}) = role == "admin"
 isAdmin _ = False
 
 
@@ -318,7 +318,7 @@ isAdmin _ = False
 --
 -- @since 0.1.0.0
 isLoggedIn :: PageM Bool
-isLoggedIn = pure . isJust . user =<< ask
+isLoggedIn = isJust <$> getUser
 
 
 -- | In the context of a 'PageM', maybe return the user; this is the best we
@@ -326,7 +326,7 @@ isLoggedIn = pure . isJust . user =<< ask
 --
 -- @since 0.1.0.0
 getUser :: PageM (Maybe User)
-getUser = pure . user =<< ask
+getUser = user <$> ask
 
 
 -- | In the present of an 'AdminPageM', /definitely/ return a user. We're
@@ -341,7 +341,7 @@ getUser = pure . user =<< ask
 --
 -- @since 0.1.0.0
 getAdmin :: AdminPageM User
-getAdmin = pure . fromJust . user =<< ask
+getAdmin = fromJust . user <$> ask
 
 
 -- | This time our home handler does a bit of busywork to show whether or not
@@ -362,7 +362,7 @@ homeHandler = do
 
   loggedIn <- isLoggedIn
   u <- getUser
-  pure $
+  pure
     [shamlet|
       <h3> Home - Example with authorisation
 
@@ -411,7 +411,7 @@ server =
 mkGithubSettings :: Key -> OAuthConfig -> OAuth2Settings PageM Github OAuth2Result
 mkGithubSettings key c = settings
  where
-  toSessionId _ = pure . id
+  toSessionId _ = pure
   provider = mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
   settings = simpleCookieOAuth2Settings provider toSessionId key
   emailAllowList = [".*"]
@@ -423,7 +423,7 @@ mkGithubSettings key c = settings
 mkGoogleSettings :: Key -> OAuthConfig -> OAuth2Settings PageM Google OAuth2Result
 mkGoogleSettings key c = settings
  where
-  toSessionId _ = pure . id
+  toSessionId _ = pure
   provider = mkGoogleProvider (_id c) (_secret c) emailAllowList Nothing
   settings = simpleCookieOAuth2Settings provider toSessionId key
   emailAllowList = [".*"]
@@ -435,7 +435,7 @@ mkGoogleSettings key c = settings
 -- @since 0.1.0.0
 main :: IO ()
 main = do
-  eitherConfig <- decodeFileExact configCodec ("./config.toml")
+  eitherConfig <- decodeFileExact configCodec "./config.toml"
   config <-
     either
       (\errors -> fail $ "unable to parse configuration: " <> show errors)

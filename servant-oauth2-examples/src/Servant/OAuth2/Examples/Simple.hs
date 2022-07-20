@@ -157,7 +157,7 @@ server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
         let githubLoginUrl = getGithubLoginUrl githubCallbackUrl githubSettings
             googleLoginUrl = getGoogleLoginUrl googleCallbackUrl googleSettings
 
-        pure $
+        pure
           [shamlet|
             <h3> Home - Basic Example
             <p>
@@ -176,7 +176,7 @@ server githubCallbackUrl githubSettings googleCallbackUrl googleSettings =
 -- @since 0.1.0.0
 main :: IO ()
 main = do
-  eitherConfig <- decodeFileExact configCodec ("./config.toml")
+  eitherConfig <- decodeFileExact configCodec "./config.toml"
   config <-
     either
       (\errors -> fail $ "unable to parse configuration: " <> show errors)
