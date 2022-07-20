@@ -9,6 +9,7 @@ want something that is defined for Servant.
 
 module Servant.OAuth2.Hacks where
 
+import "base" Data.Maybe (fromMaybe)
 import "text" Data.Text (Text, intercalate)
 import "text" Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import "hoauth2" Network.OAuth.OAuth2 qualified as OA2
@@ -49,13 +50,13 @@ getGoogleLoginUrl callbackUrl (provider -> Google { googleOAuth2 })
 getRedirectUrl :: Text -> Wai.OAuth2 -> Maybe [Text] -> Text
 getRedirectUrl callbackUrl waiOa2 oa2Scope = decodeUtf8 redirectUrl
  where
-  scope = (encodeUtf8 . intercalate " ") <$> oa2Scope
+  scope = encodeUtf8 . intercalate " " <$> oa2Scope
   redirectUrl =
     getRedirectURI $
-      (flip OA2.appendQueryParams)
-        (OA2.authorizationUrl oa2)
+      OA2.appendQueryParams
         (maybe [] ((: []) . ("scope",)) scope)
-  oa2 = maybe (error "Couldn't construct the OAuth2 record.") id fromInteralOAuth2
+        (OA2.authorizationUrl oa2)
+  oa2 = fromMaybe (error "Couldn't construct the OAuth2 record.") fromInteralOAuth2
   getRedirectURI = U.serializeURIRef'
   parseAbsoluteURI urlTxt = do
     case U.parseURI U.strictURIParserOptions (encodeUtf8 urlTxt) of

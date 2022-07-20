@@ -102,7 +102,7 @@ simpleCookieOAuth2Settings p toSessionId key =
 -- @since 0.1.0.0
 buildSessionCookie :: Binary.Binary s => Key -> s -> IO SetCookie
 buildSessionCookie key sid = do
-  encrypted <- encryptIO key $ BSL.toStrict $ Binary.encode $ sid
+  encrypted <- encryptIO key $ BSL.toStrict $ Binary.encode sid
   pure $
     defaultSetCookie
       { setCookieName = ourCookie

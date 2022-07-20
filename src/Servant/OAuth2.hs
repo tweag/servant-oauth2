@@ -6,8 +6,7 @@ into a Servant api via OAuth2. You might be interested in this if you are
 using Servant as a light-weight webserver serving 'Html', for example.
 -}
 
-{-# language NamedFieldPuns #-}
-{-# language TypeFamilies   #-}
+{-# language TypeFamilies #-}
 
 module Servant.OAuth2 where
 
@@ -58,7 +57,7 @@ import "servant-server" Servant.Server.Generic
 -- more detail.
 --
 -- @since 0.1.0.0
-data Tag a (rs :: [Type]) = Tag { unTag :: (Union rs) }
+newtype Tag a (rs :: [Type]) = Tag { unTag :: Union rs }
 
 
 -- | This is the result of successful completion of the OAuth2 login workflow;
@@ -120,7 +119,7 @@ oauth2AuthHandler settings runM = mkAuthHandler $ runM . f
     resp <- runOAuth2 req (provider settings) onSuccess onFailure
     let thing = snd . head $ Wai.responseHeaders resp
     case Wai.responseStatus resp of
-      Status 200 _ -> fmap Tag $ (success settings) req thing
+      Status 200 _ -> Tag <$> success settings req thing
       Status 401 _ -> throwM err401
       Status 403 _ -> throwM err403
       Status 501 _ -> throwM err501
@@ -139,11 +138,11 @@ runOAuth2 :: (MonadIO m, Wai.AuthProvider p)
   -> (Status -> ByteString -> IO Wai.Response)
   -> m Wai.Response
 runOAuth2 request p onSuccess onFailure = do
-  let appRoot  = Wai.smartAppRoot request
-      suffix   = ["complete"]
-      provider = Wai.Provider p
-      providerUrl (Wai.ProviderUrl url) = Wai.mkRouteRender (Just appRoot) "auth" url provider
-  liftIO $ Wai.handleLogin provider request suffix providerUrl onSuccess onFailure
+  let appRoot = Wai.smartAppRoot request
+      suffix  = ["complete"]
+      p'      = Wai.Provider p
+      providerUrl (Wai.ProviderUrl url) = Wai.mkRouteRender (Just appRoot) "auth" url p'
+  liftIO $ Wai.handleLogin p' request suffix providerUrl onSuccess onFailure
 
 
 -- | Used to record the particular provider you are using, along with the
