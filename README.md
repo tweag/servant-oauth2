@@ -9,6 +9,11 @@ Documentation:
 - <https://tweag.github.io/servant-oauth2/servant-oauth2/>
 - <https://tweag.github.io/servant-oauth2/servant-oauth2-examples/>
 
+#### Usage
+
+See the [examples](./servant-oauth2-examples). The recommended approach is to
+read through the examples in order: 1) simple, 2) cookies, 3) authorised; but
+feel free to approach it in the way that suits you best :)
 
 #### Hacking
 
