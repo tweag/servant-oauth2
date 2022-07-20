@@ -129,7 +129,7 @@ data Routes mode = Routes
 mkSettings :: Key -> OAuthConfig -> OAuth2Settings Handler Github OAuth2Result
 mkSettings key c = settings
  where
-  toSessionId _ = pure . id
+  toSessionId _ = pure
   provider = mkGithubProvider (_name c) (_id c) (_secret c) emailAllowList Nothing
   settings = simpleCookieOAuth2Settings provider toSessionId key
   emailAllowList = [".*"]
@@ -149,7 +149,7 @@ server OAuthConfig {_callbackUrl} settings =
     { home = \user -> do
         let githubLoginUrl = getGithubLoginUrl _callbackUrl settings
             loggedIn = isJust user
-        pure $
+        pure
           [shamlet|
             <h3> Home - Example with Cookies
             <p>
@@ -170,7 +170,7 @@ server OAuthConfig {_callbackUrl} settings =
 -- @since 0.1.0.0
 main :: IO ()
 main = do
-  eitherConfig <- decodeFileExact configCodec ("./config.toml")
+  eitherConfig <- decodeFileExact configCodec "./config.toml"
   config <-
     either
       (\errors -> fail $ "unable to parse configuration: " <> show errors)
