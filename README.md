@@ -66,3 +66,15 @@ http://localhost:8080/auth/github/complete
 Thanks to [tchoutri](https://github.com/tchoutri) and crew for the awesome work on
 [flora-server](https://github.com/flora-pm/flora-server) which
 partially-inspired this project!
+
+#### License
+
+[![Hippocratic License HL3-FULL](https://img.shields.io/static/v1?label=Hippocratic%20License&message=HL3-FULL&labelColor=5e2751&color=bc8c3d)](https://firstdonoharm.dev/version/3/0/full.html)
+
+We've opted for the Hippocratic licenses here as a means to open the
+conversation about what kinds of practices and technologies open-source
+software should be willing to support. We've drawn our own line in the sand by
+picking the "full" version of the license, covering such topics as fossil fuel
+divestment, ecocide, mass surveillance, and the military.
+
+You can find out more here: <https://firstdonoharm.dev/learn/>.
