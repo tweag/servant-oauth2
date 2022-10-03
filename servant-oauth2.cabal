@@ -14,7 +14,7 @@ homepage:       https://github.com/tweag/servant-oauth2#readme
 author:         Tweag
 maintainer:     noon.vandersilk@tweag.io
 copyright:      2022 Tweag
-license:        OtherLicense
+license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
