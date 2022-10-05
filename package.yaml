@@ -9,8 +9,6 @@ description:
   oauth2 backends.
 
 homepage:            https://github.com/tweag/servant-oauth2#readme
-license:             OtherLicense
-license-file:        LICENSE
 author:              Tweag
 maintainer:          noon.vandersilk@tweag.io
 copyright:           2022 Tweag
